@@ -1,0 +1,7 @@
+{
+    "server": {},
+    "client": {
+        "landing": "/",
+        "battleSimulator": "/battle"
+    }
+}
