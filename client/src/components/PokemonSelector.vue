@@ -21,7 +21,7 @@
                 :src="sprite"
                 :key="key"
                 class="sprite"
-                @click="onClickPokemon(pokemonNames[key])"
+                @click="onClickPokemon(pokemonNames[key], sprite)"
             />
         </div>
     </div>
@@ -37,6 +37,9 @@
         name: 'PokemonSelector',
         components: {},
         emit: ['nextSelectedPokemon', 'selectedPlayer'],
+        props: {
+            battleStarted: Boolean
+        },
         data () {
             return {
                 selectedPlayer: PLAYERS.player,
@@ -59,8 +62,10 @@
                 })
         },
         methods: {
-            onClickPokemon (pokemon) {
-                this.$emit('nextSelectedPokemon', pokemon)
+            onClickPokemon (pokemon, sprite) {
+                if (!this.battleStarted) {
+                    this.$emit('nextSelectedPokemon', { pokemon, sprite })
+                }
             },
             onClickSelectPlayer (playerSelection) {
                 if (this.selectedPlayer !== playerSelection) {
