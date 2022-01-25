@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="battleStart">
         BattleMoves works!
     </div>
 </template>
@@ -9,7 +9,22 @@
     export default {
         name: 'BattleMoves',
         components: {},
-        methods: {}
+        props: {
+            battleStart: Boolean,
+            pokemonBenchPlayer: Array,
+            pokemonBenchOpponent: Array
+        },
+        watch: {
+            battleStart () {
+                this.init()
+            }
+        },
+        methods: {
+            init () {
+                // TODO Player/Opponent attack in this component
+                // TODO send attack updates HP, bench change, active pokemon to BattleWindow
+            }
+        }
     }
 
 </script>

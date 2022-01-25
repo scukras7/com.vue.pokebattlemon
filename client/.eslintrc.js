@@ -20,6 +20,9 @@ module.exports = {
     'import/extensions': 'off',
     'space-before-function-paren': 'off',
     'padded-blocks': 'off',
-    'import/prefer-default-export': 'off'
+    'import/prefer-default-export': 'off',
+    'prefer-destructuring': 'off',
+    'max-len': 'off',
+    'no-plusplus': 'off'
   },
 };

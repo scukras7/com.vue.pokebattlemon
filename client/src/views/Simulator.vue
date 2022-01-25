@@ -8,12 +8,17 @@
             <div class="col-3">
                 <PokemonSelector
                     :battleStarted="bBattleStarted"
+                    :pokemonBenchPlayer="pokemonBenchPlayer"
+                    :pokemonBenchOpponent="pokemonBenchOpponent"
                     @nextSelectedPokemon="onNextSelectedPokemon"
                     @selectedPlayer="onSelectedPlayer"
+                    @pokemonBaseLevel="onPokemonBaseLevel"
                 />
             </div>
             <div class="col-3">
                 <BattleWindow
+                    :pokemonBenchPlayer="pokemonBenchPlayer"
+                    :pokemonBenchOpponent="pokemonBenchOpponent"
                     @startBattle="onStartBattle"
                 />
             </div>
@@ -66,6 +71,7 @@
                 pokemonBenchPlayer: [],
                 pokemonBenchOpponent: [],
                 bBattleStarted: false,
+                pokemonBaseLevel: 1,
                 errorMessage: ''
             }
         },
@@ -83,19 +89,37 @@
             onChangePokemonBenchPlayer (pokemonBench) {
                 const bench = []
                 pokemonBench.forEach((pokemon) => {
-                    bench.push(pokemon.pokemon)
+                    bench.push(pokemon)
                 })
                 this.pokemonBenchPlayer = [...bench]
             },
             onChangePokemonBenchOpponent (pokemonBench) {
                 const bench = []
                 pokemonBench.forEach((pokemon) => {
-                    bench.push(pokemon.pokemon)
+                    bench.push(pokemon)
                 })
                 this.pokemonBenchOpponent = [...bench]
             },
+            onPokemonBaseLevel (lvl) {
+                this.pokemonBaseLevel = lvl
+            },
             onStartBattle () {
-                this.bBattleStarted = true
+                let error = false
+                this.errorMessage = ''
+
+                if (this.pokemonBenchPlayer.length < 1) {
+                    error = true
+                    this.errorMessage = 'Player\'s bench must have at least 1 pokemon'
+                }
+
+                if (this.pokemonBenchOpponent < 1) {
+                    error = true
+                    this.errorMessage = 'Opponent\'s bench must have at least 1 pokemon'
+                }
+
+                if (!error) {
+                    this.bBattleStarted = true
+                }
             },
             onError (error) {
                 this.errorMessage = error
