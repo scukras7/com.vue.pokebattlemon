@@ -35,3 +35,24 @@ export const getStatsByPokemonName = `
         }
     }
 `
+
+export const getMovesByPokemon = `
+    query ($name: String, $levelLearnedAtLTE: Int, $moveLearnMethod: String) {
+        pokemon (name: $name, levelLearnedAtLTE: $levelLearnedAtLTE, moveLearnMethod: $moveLearnMethod) {
+            moves {
+                move {
+                    name
+                }
+                version_group_details {
+                    level_learned_at
+                    move_learn_method {
+                        name
+                    }
+                    version_group {
+                        name
+                    }
+                }
+            }
+        }
+    }
+`

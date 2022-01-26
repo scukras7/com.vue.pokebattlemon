@@ -30,23 +30,19 @@
                 @click="onClickStartBattle"
             />
         </div>
-        <BattleMoves :battleStart="battleStart"/>
-        <BattleMessages/>
     </div>
 </template>
 
 <script>
 
     import HitPoints from './HitPoints'
-    import BattleMoves from './BattleMoves'
-    import BattleMessages from './BattleMessages'
     import HttpService from '../services/HttpService'
     import { PLAYERS } from '../assets/constants'
     import { getSpritesByPokemonName, getStatsByPokemonName } from '../assets/graphql/queries'
 
     export default {
         name: 'BattleWindow',
-        components: { HitPoints, BattleMoves, BattleMessages },
+        components: { HitPoints },
         props: {
             pokemonBenchPlayer: Array,
             pokemonBenchOpponent: Array

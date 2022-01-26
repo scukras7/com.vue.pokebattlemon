@@ -44,6 +44,18 @@
                 </div>
             </div>
         </div>
+        <div class="row justify-center">
+            <div class="col-4"/>
+            <div class="col-4">
+                <BattleMoves
+                    :battleStart="bBattleStarted"
+                    :activePokemonPlayer="activePokemonPlayer"
+                    :activePokemonOpponent="activePokemonOpponent"
+                />
+                <BattleMessages/>
+            </div>
+            <div class="col-4"/>
+        </div>
     </div>
 </template>
 
@@ -53,6 +65,8 @@
     import PokemonSelector from '../components/PokemonSelector'
     import BattleWindow from '../components/BattleWindow'
     import PokemonBench from '../components/PokemonBench'
+    import BattleMoves from '../components/BattleMoves'
+    import BattleMessages from '../components/BattleMessages'
     import { PLAYERS } from '../assets/constants'
 
     export default {
@@ -61,7 +75,9 @@
             GeneralMessageBox,
             PokemonSelector,
             BattleWindow,
-            PokemonBench
+            PokemonBench,
+            BattleMoves,
+            BattleMessages
         },
         data () {
             return {
@@ -70,6 +86,8 @@
                 nextOpponentPokemon: {},
                 pokemonBenchPlayer: [],
                 pokemonBenchOpponent: [],
+                activePokemonPlayer: {},
+                activePokemonOpponent: {},
                 bBattleStarted: false,
                 pokemonBaseLevel: 1,
                 errorMessage: ''
@@ -88,6 +106,7 @@
             },
             onChangePokemonBenchPlayer (pokemonBench) {
                 const bench = []
+                this.activePokemonPlayer = pokemonBench[0]
                 pokemonBench.forEach((pokemon) => {
                     bench.push(pokemon)
                 })
@@ -95,6 +114,7 @@
             },
             onChangePokemonBenchOpponent (pokemonBench) {
                 const bench = []
+                this.activePokemonOpponent = pokemonBench[0]
                 pokemonBench.forEach((pokemon) => {
                     bench.push(pokemon)
                 })
