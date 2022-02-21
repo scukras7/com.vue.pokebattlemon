@@ -46,8 +46,24 @@
 <script>
 
     import HttpService from '../services/HttpService'
-    import { getFrontSprites } from '../assets/graphql/queries'
+    import { getAllPokemonAndStats, getMovesByPokemon, getMoveDetails } from '../assets/graphql/queries'
+    import { Pokemon } from '../classes/Pokemon'
+    import { Stat } from '../classes/Stat'
+    import { HpStat } from '../classes/HpStat'
+    import { Move } from '../classes/Move'
+    import { StatChange } from '../classes/StatChange'
     import { PLAYERS } from '../assets/constants'
+
+    const ALLOWED_MOVE_LEARNED_METHOD = 'level-up'
+
+    const STAT = {
+        hp: 'hp',
+        attack: 'attack',
+        defense: 'defense',
+        specialAttack: 'special-attack',
+        specialDefense: 'special-defense',
+        speed: 'speed'
+    }
 
     export default {
         name: 'PokemonSelector',
@@ -61,6 +77,7 @@
         data () {
             return {
                 selectedPlayer: PLAYERS.player,
+                allPokemonAndStats: [],
                 pokemonNames: [],
                 pokemonSprites: [],
                 pokemonBaseLevel: 10,
@@ -90,21 +107,61 @@
             this.$emit('selectedPlayer', this.selectedPlayer)
             this.$emit('pokemonBaseLevel', this.pokemonBaseLevel)
 
-            HttpService.graphql({ query: getFrontSprites })
+            HttpService.graphql({ query: getAllPokemonAndStats })
                 .then((res) => {
                     res.data.data.pokemon.forEach((pokemon) => {
                         this.pokemonNames.push(pokemon.name)
                         this.pokemonSprites.push(pokemon.sprites.front_default)
                     })
+                    this.allPokemonAndStats = [...res.data.data.pokemon]
                 })
 
             this.populatePokemonLevel()
         },
         methods: {
-            onClickPokemon (pokemon, sprite) {
+            async onClickPokemon (pokemonName) {
                 if (!this.battleStarted) {
                     this.disableBaseLevelSelector = true
-                    this.$emit('nextSelectedPokemon', { pokemon, sprite, lvl: this.pokemonBaseLevel })
+
+                    const pokemon = this.allPokemonAndStats.filter((obj) => pokemonName === obj.name)[0]
+
+                    let filteredStat
+                    filteredStat = pokemon.stats.filter((stat) => stat.stat.name === STAT.hp)[0]
+                    const hp = new HpStat(STAT.hp, filteredStat.base_stat)
+
+                    filteredStat = pokemon.stats.filter((stat) => stat.stat.name === STAT.attack)[0]
+                    const attack = new Stat(STAT.attack, filteredStat.base_stat)
+
+                    filteredStat = pokemon.stats.filter((stat) => stat.stat.name === STAT.defense)[0]
+                    const defense = new Stat(STAT.defense, filteredStat.base_stat)
+
+                    filteredStat = pokemon.stats.filter((stat) => stat.stat.name === STAT.specialAttack)[0]
+                    const specialAttack = new Stat(STAT.specialAttack, filteredStat.base_stat)
+
+                    filteredStat = pokemon.stats.filter((stat) => stat.stat.name === STAT.specialDefense)[0]
+                    const specialDefense = new Stat(STAT.specialDefense, filteredStat.base_stat)
+
+                    filteredStat = pokemon.stats.filter((stat) => stat.stat.name === STAT.speed)[0]
+                    const speed = new Stat(STAT.speed, filteredStat.base_stat)
+
+                    const moves = await this.getMoves(pokemon.name)
+
+                    this.$emit('nextSelectedPokemon', new Pokemon(
+                        pokemon.id,
+                        pokemon.name,
+                        this.pokemonBaseLevel,
+                        pokemon.base_experience,
+                        hp,
+                        attack,
+                        defense,
+                        specialAttack,
+                        specialDefense,
+                        speed,
+                        moves,
+                        pokemon.sprites.front_default,
+                        pokemon.sprites.back_default
+                    ))
+
                 }
             },
             onClickSelectPlayer (playerSelection) {
@@ -117,6 +174,61 @@
                 for (let i = 1; i <= 99; i++) {
                     this.pokemonBaseLevelOptions.push(i)
                 }
+            },
+            async getMoves (pokemonName) {
+                const allMovesList = []
+                const moves = []
+                const movesRes = await HttpService.graphql(getMovesByPokemon, { name: pokemonName, levelLearnedAtLTE: this.pokemonBaseLevel, moveLearnMethod: ALLOWED_MOVE_LEARNED_METHOD })
+
+                movesRes.data.data.pokemon[0].moves.forEach((moveObj) => {
+                    allMovesList.push(moveObj.move.name)
+                })
+
+                const movesDetailsRes = await HttpService.graphql(getMoveDetails, { name: allMovesList })
+
+                let moveObjs = movesDetailsRes.data.data.moves
+                moveObjs = moveObjs.sort((a, b) => {
+                    if (a.power < b.power || a.power === null) {
+                        return 1
+                    }
+                    if (a.power > b.power || b.power === null) {
+                        return -1
+                    }
+                    return 0
+                })
+
+                for (let i = 0; i < moveObjs.length; i++) {
+                    if (i > 3) {
+                        break
+                    }
+
+                    const statChanges = []
+                    moveObjs[i].stat_changes.forEach((statChangeObj) => {
+                        statChanges.push(new StatChange(statChangeObj.change, statChangeObj.stat.name))
+                    })
+
+                    /*
+                    let statChange = null
+                    if (moveObjs[i].stat_changes.length > 0) {
+                        statChange = new StatChange(moveObjs[i].stat_changes[0].change, moveObjs[i].stat_changes[0].stat.name)
+                    }
+                    */
+
+                    moves.push(new Move(
+                        moveObjs[i].id,
+                        moveObjs[i].name,
+                        moveObjs[i].accuracy,
+                        moveObjs[i].power,
+                        moveObjs[i].pp,
+                        moveObjs[i].priority,
+                        moveObjs[i].type.name,
+                        [...statChanges],
+                        moveObjs[i].target.name
+                    ))
+                }
+
+                return moves
+
             }
         }
     }

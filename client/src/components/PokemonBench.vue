@@ -49,7 +49,7 @@
         <div id="pokemonBench" class="col-12">
             <span v-if="pokemonBench.length > 0">
                 <span v-for="pokemon, key in pokemonBench" :key="key">
-                    <img :src="pokemon.sprite" class="pokemonSprite"/>
+                    <img :src="pokemon.getFrontSprite()" class="pokemonSprite"/>
                 </span>
             </span>
             <span v-else>No pokemon selected</span>
@@ -66,6 +66,7 @@
         props: {
             user: Number,
             nextPokemon: Object,
+            bench: Array,
             battleStarted: Boolean
         },
         data () {
@@ -76,6 +77,9 @@
         watch: {
             nextPokemon (pokemon) {
                 this.addPokemonToBench(pokemon)
+            },
+            bench (bench) {
+                this.pokemonBench = [...bench]
             }
         },
         methods: {

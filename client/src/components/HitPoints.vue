@@ -46,11 +46,11 @@
                 bgColor: '#53ea8e'
             }
         },
+        created () {
+            this.hitPoints = this.totalHitPoints
+            this.percentHpRemaining = 100
+        },
         watch: {
-            totalHitPoints (hp) {
-                this.hitPoints = hp
-                this.percentHpRemaining = 100
-            },
             damagePoints (dp) {
                 this.hitPoints -= dp
                 this.percentHpRemaining = Math.round((this.hitPoints - dp) / this.totalHitPoints)

@@ -27,6 +27,7 @@
                     <PokemonBench
                         :user="1"
                         :nextPokemon="nextPlayerPokemon"
+                        :bench="pokemonBenchPlayer"
                         :battleStarted="bBattleStarted"
                         @error="onError"
                         @pokemonBenchChange="onChangePokemonBenchPlayer"
@@ -37,6 +38,7 @@
                     <PokemonBench
                         :user="2"
                         :nextPokemon="nextOpponentPokemon"
+                        :bench="pokemonBenchOpponent"
                         :battleStarted="bBattleStarted"
                         @error="onError"
                         @pokemonBenchChange="onChangePokemonBenchOpponent"
@@ -46,13 +48,17 @@
         </div>
         <div class="row justify-center">
             <div class="col-4"/>
-            <div class="col-4">
+            <div class="col-3">
                 <BattleMoves
                     :battleStart="bBattleStarted"
+                    :playerTurn="playerTurn"
                     :activePokemonPlayer="activePokemonPlayer"
                     :activePokemonOpponent="activePokemonOpponent"
+                    @playerSelectedMove="onPlayerSelectedMove"
+                    @faintPlayerPokemon="faintPokemon"
+                    @error="onError"
                 />
-                <BattleMessages/>
+                <!--<BattleMessages/>-->
             </div>
             <div class="col-4"/>
         </div>
@@ -61,12 +67,13 @@
 
 <script>
 
+    import OpponentService from '../services/OpponentService'
     import GeneralMessageBox from '../components/GeneralMessageBox'
     import PokemonSelector from '../components/PokemonSelector'
     import BattleWindow from '../components/BattleWindow'
     import PokemonBench from '../components/PokemonBench'
     import BattleMoves from '../components/BattleMoves'
-    import BattleMessages from '../components/BattleMessages'
+    // import BattleMessages from '../components/BattleMessages'
     import { PLAYERS } from '../assets/constants'
 
     export default {
@@ -77,11 +84,12 @@
             BattleWindow,
             PokemonBench,
             BattleMoves,
-            BattleMessages
+            // BattleMessages
         },
         data () {
             return {
                 selectedPlayer: '',
+                playerTurn: '',
                 nextPlayerPokemon: {},
                 nextOpponentPokemon: {},
                 pokemonBenchPlayer: [],
@@ -90,7 +98,9 @@
                 activePokemonOpponent: {},
                 bBattleStarted: false,
                 pokemonBaseLevel: 1,
-                errorMessage: ''
+                errorMessage: '',
+                bGameOver: false,
+                winningPlayer: ''
             }
         },
         methods: {
@@ -138,11 +148,81 @@
                 }
 
                 if (!error) {
+                    const pokemonSpeedPlayer = this.pokemonBenchPlayer[0].getSpeed
+                    const pokemonSpeedOpponent = this.pokemonBenchOpponent[0].getSpeed
+                    let playerTurn
+
+                    pokemonSpeedPlayer >= pokemonSpeedOpponent ? playerTurn = PLAYERS.player : playerTurn = PLAYERS.opponent
+                    this.playerTurn = playerTurn
+
                     this.bBattleStarted = true
+
+                    if (playerTurn === PLAYERS.opponent) {
+                        this.executeOpponentsTurn()
+                    }
                 }
             },
             onError (error) {
                 this.errorMessage = error
+            },
+            onPlayerSelectedMove (move) {
+                console.log('DEBUG onPlayerSelectedMove')
+                console.log(move)
+
+                // TODO logic for players turn here
+                // const createdMoveRes = PlayerService.createMove(move)
+                // this.activePokemonPlayer = chosenMoveRes.pokemon
+
+                this.playerTurn = PLAYERS.opponent
+                this.executeOpponentsTurn()
+            },
+            executeOpponentsTurn () {
+                const chosenMoveRes = OpponentService.chooseMove(this.activePokemonOpponent)
+                this.activePokemonOpponent = chosenMoveRes.pokemon
+                console.log('DEBUG chosenMoveRes')
+                console.log(chosenMoveRes)
+
+                // TODO log pokemon and move in database
+
+                if (chosenMoveRes.faint) {
+                    console.log('pokemon fainted')
+                    this.faintPokemon(PLAYERS.opponent)
+                } else {
+                    this.executeMove(chosenMoveRes)
+                }
+
+                this.playerTurn = PLAYERS.player
+            },
+            faintPokemon (player) {
+
+                let bench
+
+                if (player === PLAYERS.player) {
+                    bench = [...this.pokemonBenchPlayer]
+                } else {
+                    bench = [...this.pokemonBenchOpponent]
+                }
+
+                bench.shift()
+
+                if (bench.length < 1) {
+                    // TODO redirect to GamerOver component
+                    this.bGameOver = true
+                    player === PLAYERS.player ? this.winningPlayer = PLAYERS.player : this.winningPlayer = PLAYERS.opponent
+                } else {
+                    if (player === PLAYERS.player) {
+                        this.pokemonBenchPlayer = [...bench]
+                        this.activePokemonPlayer = bench[0]
+                        this.playerTurn = PLAYERS.opponent
+                    } else {
+                        this.pokemonBenchOpponent = [...bench]
+                        this.activePokemonOpponent = bench[0]
+                        this.playerTurn = PLAYERS.player
+                    }
+                }
+            },
+            executeMove (/* move */) {
+
             }
         }
     }
