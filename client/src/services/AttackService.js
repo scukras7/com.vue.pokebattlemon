@@ -7,10 +7,6 @@ export class AttackService {
 
     static async applyAttack (move, attackingPokemon, defendingPokemon) {
 
-        console.log('applying attack')
-        console.log(attackingPokemon)
-        console.log(defendingPokemon)
-
         if (move.getPower() !== null) {
 
             let attackApplied
@@ -42,41 +38,16 @@ export class AttackService {
                 }
             }
 
-            // TODO get type modifier, search by move.getType() and defendingPokemon.getTypes()
             const typeEffectiveness = await this._calculateTypeEffectiveness(move, defendingPokemon)
 
-            console.log('COEFFICIENTS')
-            console.log(attackingPokemon.getName())
-            console.log(move)
-            console.log(attackingPokemon.getLevel())
-            console.log(move.getPower())
-            console.log(attackApplied)
-            console.log(defenseApplied)
-            console.log(random)
-            console.log(stab)
-            console.log(typeEffectiveness)
-
             const damage = Math.floor(((((((2 * attackingPokemon.getLevel()) / 5) + 2) * move.getPower() * (attackApplied / defenseApplied)) / 50) + 2) * random * stab * typeEffectiveness)
-
-            console.log('DAMAGE')
-            console.log(damage)
-            console.log()
 
             return { bDamageDealtToDefendingPokemon: true, damage }
 
         }
 
         // move affects defendingPokemon's stat(s)
-
-        console.log('DEBUG MOVE')
-        console.log(move)
-
-        console.log('DEFENDING POKEMON START')
-        console.log(defendingPokemon)
-
         move.getStatChanges().forEach((statChangeObj) => {
-            console.log(statChangeObj)
-
             switch (statChangeObj.getName()) {
 
                 case STAT.attack: {
@@ -119,10 +90,7 @@ export class AttackService {
             }
         })
 
-        console.log('DEFENDING POKEMON END')
-        console.log(defendingPokemon)
         return { bDamageDealtToDefendingPokemon: false, defendingPokemon }
-
     }
 
     static _getRandomCoefficient() {
