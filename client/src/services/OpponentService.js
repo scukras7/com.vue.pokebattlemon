@@ -96,7 +96,7 @@ export default class OpponentService {
             return { pokemon, move, faint: false }
         }
 
-        this.attack(pokemon)
+        this.chooseMove(pokemon)
 
     }
 

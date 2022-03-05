@@ -74,6 +74,8 @@
     import PokemonBench from '../components/PokemonBench'
     import BattleMoves from '../components/BattleMoves'
     // import BattleMessages from '../components/BattleMessages'
+    import { PlayerService } from '../services/PlayerService'
+    import { AttackService } from '../services/AttackService'
     import { PLAYERS } from '../assets/constants'
 
     export default {
@@ -166,12 +168,15 @@
                 this.errorMessage = error
             },
             onPlayerSelectedMove (move) {
-                console.log('DEBUG onPlayerSelectedMove')
-                console.log(move)
 
-                // TODO logic for players turn here
-                // const createdMoveRes = PlayerService.createMove(move)
-                // this.activePokemonPlayer = chosenMoveRes.pokemon
+                const playerMoveRes = PlayerService.createMove(this.activePokemonPlayer, move)
+                this.activePokemonPlayer = playerMoveRes.pokemon
+
+                // TODO log pokemon and move in database
+
+                if (playerMoveRes.bApplyMoveToOpponent) {
+                    this.executeMove(playerMoveRes)
+                }
 
                 this.playerTurn = PLAYERS.opponent
                 this.executeOpponentsTurn()
@@ -207,6 +212,7 @@
 
                 if (bench.length < 1) {
                     // TODO redirect to GamerOver component
+                    console.log('DEBUG no remaining pokemon -> redirect to GameOver')
                     this.bGameOver = true
                     player === PLAYERS.player ? this.winningPlayer = PLAYERS.player : this.winningPlayer = PLAYERS.opponent
                 } else {
@@ -221,7 +227,24 @@
                     }
                 }
             },
-            executeMove (/* move */) {
+            executeMove (moveRes) {
+
+                /* TODO
+                    1. apply attack to opponent, deal damage
+                    2. check if opponent fainted
+                    3. if fainted get next pokemon from bench
+                    4. if bench is empty redirect to GameOver
+
+                    Update pokemon on return
+
+                    { pokemon, faint: Boolean }
+                */
+
+                if (this.playerTurn === PLAYERS.player) {
+                    AttackService.applyAttack(moveRes.move, this.activePokemonPlayer, this.activePokemonOpponent)
+                } else {
+                    AttackService.applyAttack(moveRes.move, this.activePokemonOpponent, this.activePokemonPlayer)
+                }
 
             }
         }

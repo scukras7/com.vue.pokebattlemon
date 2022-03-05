@@ -24,6 +24,7 @@ module.exports = {
     'no-plusplus': 'off',
     "no-underscore-dangle": "off",
     "no-unused-expressions": "off",
+    "object-curly-newline": "off",
     'padded-blocks': 'off',
     'prefer-destructuring': 'off',
     'space-before-function-paren': 'off',

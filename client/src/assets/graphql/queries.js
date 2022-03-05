@@ -43,6 +43,11 @@ export const getAllPokemonAndStats = `
             id
             name
             base_experience
+            types {
+                type {
+                    name
+                }
+            }
             stats {
                 base_stat
                 effort
@@ -100,6 +105,29 @@ export const getMoveDetails = `
             target {
                 name
             }
+        }
+    }
+`
+
+export const getTypeModifierByMove = `
+    query ($attackTypeModifier: String) {
+        typeModifiers (attackName: $attackTypeModifier) {
+        attackName
+        fire
+        water
+        grass
+        electric
+        ice
+        psychic
+        normal
+        fighting
+        flying
+        ground
+        rock
+        bug
+        poison
+        ghost
+        dragon
         }
     }
 `

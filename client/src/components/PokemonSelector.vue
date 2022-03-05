@@ -144,6 +144,9 @@
                     filteredStat = pokemon.stats.filter((stat) => stat.stat.name === STAT.speed)[0]
                     const speed = new Stat(STAT.speed, filteredStat.base_stat)
 
+                    const types = []
+                    pokemon.types.forEach((type) => types.push(type.type.name))
+
                     const moves = await this.getMoves(pokemon.name)
 
                     this.$emit('nextSelectedPokemon', new Pokemon(
@@ -158,6 +161,7 @@
                         specialDefense,
                         speed,
                         moves,
+                        types,
                         pokemon.sprites.front_default,
                         pokemon.sprites.back_default
                     ))

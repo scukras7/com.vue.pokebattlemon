@@ -15,9 +15,10 @@ export class Pokemon {
         speed: Stat
         moves: [Move]
         sprite: String
+        types: [String]
     */
 
-    constructor (id, name, level, baseExp, hp, attack, defense, specialAttack, specialDefense, speed, moves, frontSprite, backSprite) {
+    constructor(id, name, level, baseExp, hp, attack, defense, specialAttack, specialDefense, speed, moves, types, frontSprite, backSprite) {
         this.id = id
         this.name = name
         this.level = level
@@ -38,6 +39,7 @@ export class Pokemon {
         this._setStatToLevel(speed, level)
 
         this.moves = [...moves]
+        this.types = [...types]
         this.frontSprite = frontSprite
         this.backSprite = backSprite
 
@@ -86,6 +88,10 @@ export class Pokemon {
     getMoves () { return this.moves }
 
     setMoves (moves) { this.moves = [...moves] }
+
+    getTypes () { return this.types }
+
+    setTypes (types) { this.types = [...types] }
 
     getFrontSprite () { return this.frontSprite }
 
