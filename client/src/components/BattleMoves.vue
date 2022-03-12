@@ -22,8 +22,7 @@
         props: {
             battleStart: Boolean,
             playerTurn: String,
-            activePokemonPlayer: Object,
-            activePokemonOpponent: Object
+            activePokemonPlayer: Object
         },
         data () {
             return {
@@ -34,6 +33,9 @@
         watch: {
             battleStart () {
                 if (this.battleStart) this.update()
+            },
+            activePokemonPlayer () {
+                this.update()
             }
         },
         methods: {
@@ -64,6 +66,7 @@
                         })
 
                         this.activePokemonPlayer.setMoves(updateMoves)
+                        console.log('MOVE MOVE MOVE MOVE MOVE')
                         this.$emit('playerSelectedMove', move)
                     } else {
                         let bMovesHavePp = false

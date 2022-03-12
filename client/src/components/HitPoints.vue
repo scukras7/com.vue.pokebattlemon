@@ -11,20 +11,15 @@
                 <div class="healthContainer">
                     <div
                         id="healthMeter"
-                        :style="{
-                            'background-color': bgColor,
-                            'color': 'transparent',
-                            'border-radius': '25px',
-                            'width': percentHpRemaining,
-                            'height': '5px' }"
+                        :style="healthCss"
                     >
-                        {{hitPoints}}
+                        {{remainingHp}}
                     </div>
                 </div>
             </div>
         </div>
         <div class="textAlignCenter">
-            {{hitPoints}}/{{totalHitPoints}}
+            {{remainingHp}}/{{totalHitPoints}}
         </div>
     </div>
 </template>
@@ -35,28 +30,48 @@
         name: 'HitPoints',
         components: {},
         props: {
-            damagePoints: Number,
+            remainingHp: Number,
             totalHitPoints: Number,
             lvl: Number
         },
         data () {
             return {
-                hitPoints: 0,
                 percentHpRemaining: 100,
-                bgColor: '#53ea8e'
+                bgColor: '#53ea8e',
+                healthCss: {
+                    'background-color': this.bgColor,
+                    color: 'transparent',
+                    'border-radius': '25px',
+                    width: '100%',
+                    height: '5px'
+                }
             }
         },
         created () {
-            this.hitPoints = this.totalHitPoints
             this.percentHpRemaining = 100
+            this.updateCss(100)
         },
         watch: {
-            damagePoints (dp) {
-                this.hitPoints -= dp
-                this.percentHpRemaining = Math.round((this.hitPoints - dp) / this.totalHitPoints)
+            remainingHp (hp) {
+                this.percentHpRemaining = Math.round((hp / this.totalHitPoints) * 100)
+            },
+            percentHpRemaining (percent) {
+                this.updateCss(percent)
             }
         },
-        methods: {}
+        methods: {
+            updateCss (percent) {
+                console.log('PERCENT')
+                console.log(percent)
+                this.healthCss = {
+                    'background-color': this.bgColor,
+                    color: 'transparent',
+                    'border-radius': '25px',
+                    width: `${percent}%`,
+                    height: '5px'
+                }
+            }
+        }
     }
 
 </script>

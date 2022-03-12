@@ -1,6 +1,6 @@
 <template>
     <div>
-        GameOver works!
+        GameOver works! {{winningPlayer}}
     </div>
 </template>
 
@@ -12,6 +12,11 @@
         props: {
             bGameOver: Boolean,
             winningPlayer: String
+        },
+        watch: {
+            winningPlayer (player) {
+                console.log(`I am the winner: ${player}`)
+            }
         },
         methods: {}
     }

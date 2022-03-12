@@ -19,6 +19,8 @@
                 <BattleWindow
                     :pokemonBenchPlayer="pokemonBenchPlayer"
                     :pokemonBenchOpponent="pokemonBenchOpponent"
+                    :activePokemonPlayerRemainingHp="activePokemonPlayerRemainingHp"
+                    :activePokemonOpponentRemainingHp="activePokemonOpponentRemainingHp"
                     @startBattle="onStartBattle"
                 />
             </div>
@@ -53,7 +55,6 @@
                     :battleStart="bBattleStarted"
                     :playerTurn="playerTurn"
                     :activePokemonPlayer="activePokemonPlayer"
-                    :activePokemonOpponent="activePokemonOpponent"
                     @playerSelectedMove="onPlayerSelectedMove"
                     @faintPlayerPokemon="faintPokemon"
                     @error="onError"
@@ -98,11 +99,11 @@
                 pokemonBenchOpponent: [],
                 activePokemonPlayer: {},
                 activePokemonOpponent: {},
+                activePokemonPlayerRemainingHp: 0,
+                activePokemonOpponentRemainingHp: 0,
                 bBattleStarted: false,
                 pokemonBaseLevel: 1,
-                errorMessage: '',
-                bGameOver: false,
-                winningPlayer: ''
+                errorMessage: ''
             }
         },
         methods: {
@@ -119,6 +120,7 @@
             onChangePokemonBenchPlayer (pokemonBench) {
                 const bench = []
                 this.activePokemonPlayer = pokemonBench[0]
+                this.activePokemonPlayerRemainingHp = pokemonBench[0].getHp().getRemainingHp()
                 pokemonBench.forEach((pokemon) => {
                     bench.push(pokemon)
                 })
@@ -127,6 +129,7 @@
             onChangePokemonBenchOpponent (pokemonBench) {
                 const bench = []
                 this.activePokemonOpponent = pokemonBench[0]
+                this.activePokemonOpponentRemainingHp = pokemonBench[0].getHp().getRemainingHp()
                 pokemonBench.forEach((pokemon) => {
                     bench.push(pokemon)
                 })
@@ -168,7 +171,6 @@
                 this.errorMessage = error
             },
             onPlayerSelectedMove (move) {
-
                 const playerMoveRes = PlayerService.createMove(this.activePokemonPlayer, move)
                 this.activePokemonPlayer = playerMoveRes.pokemon
 
@@ -184,13 +186,10 @@
             executeOpponentsTurn () {
                 const chosenMoveRes = OpponentService.chooseMove(this.activePokemonOpponent)
                 this.activePokemonOpponent = chosenMoveRes.pokemon
-                console.log('DEBUG chosenMoveRes')
-                console.log(chosenMoveRes)
 
                 // TODO log pokemon and move in database
 
                 if (chosenMoveRes.faint) {
-                    console.log('pokemon fainted')
                     this.faintPokemon(PLAYERS.opponent)
                 } else {
                     this.executeMove(chosenMoveRes)
@@ -199,7 +198,6 @@
                 this.playerTurn = PLAYERS.player
             },
             faintPokemon (player) {
-
                 let bench
 
                 if (player === PLAYERS.player) {
@@ -211,23 +209,24 @@
                 bench.shift()
 
                 if (bench.length < 1) {
-                    // TODO redirect to GamerOver component
-                    console.log('DEBUG no remaining pokemon -> redirect to GameOver')
-                    this.bGameOver = true
-                    player === PLAYERS.player ? this.winningPlayer = PLAYERS.player : this.winningPlayer = PLAYERS.opponent
+                    let winningPlayer
+                    player === PLAYERS.player ? winningPlayer = PLAYERS.opponent : winningPlayer = PLAYERS.player
+                    this.$router.push({ name: 'GameOver', params: { winningPlayer } })
                 } else {
                     if (player === PLAYERS.player) {
                         this.pokemonBenchPlayer = [...bench]
                         this.activePokemonPlayer = bench[0]
-                        this.playerTurn = PLAYERS.opponent
+                        this.activePokemonPlayerRemainingHp = bench[0].getHp().getRemainingHp()
+                        this.playerTurn = PLAYERS.player
                     } else {
                         this.pokemonBenchOpponent = [...bench]
                         this.activePokemonOpponent = bench[0]
+                        this.activePokemonOpponentRemainingHp = bench[0].getHp().getRemainingHp()
                         this.playerTurn = PLAYERS.player
                     }
                 }
             },
-            executeMove (moveRes) {
+            async executeMove (moveRes) {
 
                 /* TODO
                     1. apply attack to opponent, deal damage
@@ -238,12 +237,44 @@
                     Update pokemon on return
 
                     { pokemon, faint: Boolean }
+                    { bDamageDealtToDefendingPokemon: true, damage }
+                    { bDamageDealtToDefendingPokemon: false, defendingPokemon }
                 */
 
                 if (this.playerTurn === PLAYERS.player) {
-                    AttackService.applyAttack(moveRes.move, this.activePokemonPlayer, this.activePokemonOpponent)
+
+                    const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonPlayer, this.activePokemonOpponent)
+
+                    if (attackRes.bDamageDealtToDefendingPokemon) {
+                        const hp = this.activePokemonOpponent.getHp()
+                        hp.setRemainingHp(hp.getRemainingHp() - attackRes.damage)
+
+                        if (hp.getRemainingHp() <= 0) {
+                            this.faintPokemon(PLAYERS.opponent)
+                        } else {
+                            this.activePokemonOpponentRemainingHp = hp.getRemainingHp()
+                            this.activePokemonOpponent.setHp(hp)
+                        }
+                    } else {
+                        this.activePokemonOpponent = attackRes.defendingPokemon
+                    }
+
                 } else {
-                    AttackService.applyAttack(moveRes.move, this.activePokemonOpponent, this.activePokemonPlayer)
+                    const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonOpponent, this.activePokemonPlayer)
+
+                    if (attackRes.bDamageDealtToDefendingPokemon) {
+                        const hp = this.activePokemonPlayer.getHp()
+                        hp.setRemainingHp(hp.getRemainingHp() - attackRes.damage)
+
+                        if (hp.getRemainingHp() <= 0) {
+                            this.faintPokemon(PLAYERS.player)
+                        } else {
+                            this.activePokemonPlayerRemainingHp = hp.getRemainingHp()
+                            this.activePokemonPlayer.setHp(hp)
+                        }
+                    } else {
+                        this.activePokemonPlayer = attackRes.defendingPokemon
+                    }
                 }
 
             }

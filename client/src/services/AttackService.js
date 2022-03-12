@@ -41,7 +41,6 @@ export class AttackService {
             const typeEffectiveness = await this._calculateTypeEffectiveness(move, defendingPokemon)
 
             const damage = Math.floor(((((((2 * attackingPokemon.getLevel()) / 5) + 2) * move.getPower() * (attackApplied / defenseApplied)) / 50) + 2) * random * stab * typeEffectiveness)
-
             return { bDamageDealtToDefendingPokemon: true, damage }
 
         }
@@ -111,19 +110,29 @@ export class AttackService {
     }
 
     static async _calculateTypeEffectiveness(move, defendingPokemon) {
+
+        const FAIRY_TYPE = 'fairy'
+        const NORMAL_TYPE = 'normal'
+
         const typeModifiersRes = await HttpService.graphql(getTypeModifierByMove, { attackTypeModifier: move.getType() })
 
         let typeEffectiveness
+        let tmpDefendingPokemonType
         const typeModifierObj = typeModifiersRes.data.data.typeModifiers[0]
 
         defendingPokemon.getTypes().forEach((defendingPokemonType, i) => {
+            tmpDefendingPokemonType = defendingPokemonType
+
+            if (defendingPokemonType === FAIRY_TYPE) {
+                tmpDefendingPokemonType = NORMAL_TYPE
+            }
+
             if (i < 1) {
-                typeEffectiveness = typeModifierObj[defendingPokemonType]
+                typeEffectiveness = typeModifierObj[tmpDefendingPokemonType]
             } else {
-                typeEffectiveness *= typeModifierObj[defendingPokemonType]
+                typeEffectiveness *= typeModifierObj[tmpDefendingPokemonType]
             }
         })
-
         return typeEffectiveness
     }
 

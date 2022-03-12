@@ -4,7 +4,7 @@
         <div id="battleWindow" class="col-12">
             <div class="row">
                 <div v-if="activePokemonOpponent !== '' && battleStart" class="col-6">
-                    <HitPoints :damagePoints="damagePointsPlayer" :totalHitPoints="pokemonHpOpponent" :lvl="activePokemonOpponent.getLevel()"/>
+                    <HitPoints :remainingHp="activePokemonOpponentRemainingHp" :totalHitPoints="pokemonHpOpponent" :lvl="activePokemonOpponent.getLevel()"/>
                 </div>
                 <div v-if="activePokemonOpponent !== '' && battleStart" class="col-6 alignImageRight">
                     <img :src="activePokemonSpriteOpponent" :alt="activePokemonOpponent.getName()" class="battleSprite"/>
@@ -15,7 +15,7 @@
                     <img :src="activePokemonSpritePlayer" :alt="activePokemonPlayer.getName()" class="battleSprite"/>
                 </div>
                 <div v-if="activePokemonPlayer !== '' && battleStart" class="col-6">
-                    <HitPoints :damagePoints="damagePointsOpponent" :totalHitPoints="pokemonHpPlayer" :lvl="activePokemonPlayer.getLevel()"/>
+                    <HitPoints :remainingHp="activePokemonPlayerRemainingHp" :totalHitPoints="pokemonHpPlayer" :lvl="activePokemonPlayer.getLevel()"/>
                 </div>
             </div>
         </div>
@@ -43,7 +43,9 @@
         components: { HitPoints },
         props: {
             pokemonBenchPlayer: Array,
-            pokemonBenchOpponent: Array
+            pokemonBenchOpponent: Array,
+            activePokemonPlayerRemainingHp: Number,
+            activePokemonOpponentRemainingHp: Number
         },
         data () {
             return {
@@ -55,8 +57,6 @@
                 activePokemonSpriteOpponent: '',
                 pokemonHpPlayer: 0,
                 pokemonHpOpponent: 0,
-                damagePointsPlayer: 0,
-                damagePointsOpponent: 0,
                 battleStart: false
             }
         },

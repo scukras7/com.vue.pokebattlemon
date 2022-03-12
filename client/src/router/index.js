@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Landing from '../views/Landing'
 import Simulator from '../views/Simulator'
+import GameOver from '../views/GameOver'
 
 const routes = [
   {
@@ -12,6 +13,12 @@ const routes = [
     path: '/battle',
     name: 'Simulator',
     component: Simulator
+  },
+  {
+    path: '/gameover',
+    name: 'GameOver',
+    component: GameOver,
+    props: true
   }
   // {
   //  path: '/about',
