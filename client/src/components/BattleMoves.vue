@@ -15,6 +15,8 @@
 
     import { PLAYERS } from '../assets/constants'
 
+    const MOVES_OBJECT_COMPARISON = 'moves'
+
     export default {
         name: 'BattleMoves',
         components: {},
@@ -40,6 +42,7 @@
         },
         methods: {
             update () {
+                if (MOVES_OBJECT_COMPARISON in this.activePokemonPlayer) {
                 const moves = [...this.activePokemonPlayer.getMoves()]
                 const movesToAdd = 4 - moves.length
 
@@ -47,6 +50,7 @@
                     moves.push({ name: 'null' })
                 }
                 this.activePokemonMovesPlayer = [...moves]
+                }
             },
             selectMove (move) {
                 this.$emit('error', '')
@@ -66,7 +70,6 @@
                         })
 
                         this.activePokemonPlayer.setMoves(updateMoves)
-                        console.log('MOVE MOVE MOVE MOVE MOVE')
                         this.$emit('playerSelectedMove', move)
                     } else {
                         let bMovesHavePp = false

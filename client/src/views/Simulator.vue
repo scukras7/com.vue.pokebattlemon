@@ -77,7 +77,10 @@
     // import BattleMessages from '../components/BattleMessages'
     import { PlayerService } from '../services/PlayerService'
     import { AttackService } from '../services/AttackService'
-    import { PLAYERS } from '../assets/constants'
+    import { LoggerService } from '../services/LoggerService'
+    import { PLAYERS, LOGS } from '../assets/constants'
+    import HttpService from '../services/HttpService'
+    import routes from '../assets/json/routes.json'
 
     export default {
         name: 'Simulator',
@@ -103,6 +106,7 @@
                 activePokemonOpponentRemainingHp: 0,
                 bBattleStarted: false,
                 pokemonBaseLevel: 1,
+                battleId: '',
                 errorMessage: ''
             }
         },
@@ -119,26 +123,38 @@
             },
             onChangePokemonBenchPlayer (pokemonBench) {
                 const bench = []
-                this.activePokemonPlayer = pokemonBench[0]
-                this.activePokemonPlayerRemainingHp = pokemonBench[0].getHp().getRemainingHp()
-                pokemonBench.forEach((pokemon) => {
-                    bench.push(pokemon)
-                })
-                this.pokemonBenchPlayer = [...bench]
+                if (pokemonBench.length > 0) {
+                    this.activePokemonPlayer = pokemonBench[0]
+                    this.activePokemonPlayerRemainingHp = pokemonBench[0].getHp().getRemainingHp()
+                    pokemonBench.forEach((pokemon) => {
+                        bench.push(pokemon)
+                    })
+                    this.pokemonBenchPlayer = [...bench]
+                } else {
+                    this.activePokemonPlayer = {}
+                    this.activePokemonPlayerRemainingHp = 0
+                    this.pokemonBenchPlayer = []
+                }
             },
             onChangePokemonBenchOpponent (pokemonBench) {
                 const bench = []
-                this.activePokemonOpponent = pokemonBench[0]
-                this.activePokemonOpponentRemainingHp = pokemonBench[0].getHp().getRemainingHp()
-                pokemonBench.forEach((pokemon) => {
-                    bench.push(pokemon)
-                })
-                this.pokemonBenchOpponent = [...bench]
+                if (pokemonBench.length > 0) {
+                    this.activePokemonOpponent = pokemonBench[0]
+                    this.activePokemonOpponentRemainingHp = pokemonBench[0].getHp().getRemainingHp()
+                    pokemonBench.forEach((pokemon) => {
+                        bench.push(pokemon)
+                    })
+                    this.pokemonBenchOpponent = [...bench]
+                } else {
+                    this.activePokemonOpponent = {}
+                    this.activePokemonOpponentRemainingHp = 0
+                    this.pokemonBenchPlayer = []
+                }
             },
             onPokemonBaseLevel (lvl) {
                 this.pokemonBaseLevel = lvl
             },
-            onStartBattle () {
+            async onStartBattle () {
                 let error = false
                 this.errorMessage = ''
 
@@ -162,6 +178,11 @@
 
                     this.bBattleStarted = true
 
+                    const battleIdRes = await HttpService.get(routes.server.api.root + routes.server.api.logCreateBattleId)
+                    this.battleId = battleIdRes.data.battleId
+
+                    LoggerService.log(LOGS.benches, { playerBench: this.pokemonBenchPlayer, opponentBench: this.pokemonBenchOpponent }, battleIdRes.data.battleId)
+
                     if (playerTurn === PLAYERS.opponent) {
                         this.executeOpponentsTurn()
                     }
@@ -178,27 +199,33 @@
 
                 if (playerMoveRes.bApplyMoveToOpponent) {
                     this.executeMove(playerMoveRes)
+                } else {
+                    LoggerService.log(LOGS.move, playerMoveRes, this.battleId)
                 }
 
                 this.playerTurn = PLAYERS.opponent
                 this.executeOpponentsTurn()
             },
             executeOpponentsTurn () {
-                const chosenMoveRes = OpponentService.chooseMove(this.activePokemonOpponent)
-                this.activePokemonOpponent = chosenMoveRes.pokemon
+                setTimeout(() => {
+                    const chosenMoveRes = OpponentService.chooseMove(this.activePokemonOpponent)
+                    this.activePokemonOpponent = chosenMoveRes.pokemon
 
-                // TODO log pokemon and move in database
+                    // TODO log pokemon and move in database
 
-                if (chosenMoveRes.faint) {
-                    this.faintPokemon(PLAYERS.opponent)
-                } else {
-                    this.executeMove(chosenMoveRes)
-                }
+                    if (chosenMoveRes.faint) {
+                        this.faintPokemon(PLAYERS.opponent)
+                    } else {
+                        this.executeMove(chosenMoveRes)
+                    }
 
-                this.playerTurn = PLAYERS.player
+                    this.playerTurn = PLAYERS.player
+                }, 2000)
             },
             faintPokemon (player) {
                 let bench
+
+                // TODO log fainted pokemon
 
                 if (player === PLAYERS.player) {
                     bench = [...this.pokemonBenchPlayer]
@@ -210,6 +237,9 @@
 
                 if (bench.length < 1) {
                     let winningPlayer
+
+                    // TODO log winner
+
                     player === PLAYERS.player ? winningPlayer = PLAYERS.opponent : winningPlayer = PLAYERS.player
                     this.$router.push({ name: 'GameOver', params: { winningPlayer } })
                 } else {
@@ -244,6 +274,7 @@
                 if (this.playerTurn === PLAYERS.player) {
 
                     const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonPlayer, this.activePokemonOpponent)
+                    LoggerService.log(LOGS.move, moveRes, this.battleId, attackRes, this.activePokemonOpponent.getName())
 
                     if (attackRes.bDamageDealtToDefendingPokemon) {
                         const hp = this.activePokemonOpponent.getHp()
@@ -261,6 +292,7 @@
 
                 } else {
                     const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonOpponent, this.activePokemonPlayer)
+                    LoggerService.log(LOGS.move, moveRes, this.battleId, attackRes, this.activePokemonPlayer.getName())
 
                     if (attackRes.bDamageDealtToDefendingPokemon) {
                         const hp = this.activePokemonPlayer.getHp()

@@ -102,10 +102,12 @@
                 this.$emit('startBattle', true)
             },
             setPokemonHp (player, pokemon) {
-                if (player === PLAYERS.player) {
-                    this.pokemonHpPlayer = pokemon.getHp().getRemainingHp()
-                } else {
-                    this.pokemonHpOpponent = pokemon.getHp().getRemainingHp()
+                if (pokemon) {
+                    if (player === PLAYERS.player) {
+                        this.pokemonHpPlayer = pokemon.getHp().getRemainingHp()
+                    } else {
+                        this.pokemonHpOpponent = pokemon.getHp().getRemainingHp()
+                    }
                 }
             }
         }

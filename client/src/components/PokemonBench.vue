@@ -95,8 +95,12 @@
                 }
             },
             onClickRemove () {
-                this.pokemonBench.pop()
-                this.pokemonBenchChange()
+                if (this.pokemonBench.length > 0) {
+                    this.pokemonBench.pop()
+                    this.pokemonBenchChange()
+                } else {
+                    this.pokemonBench = []
+                }
             },
             pokemonBenchChange () {
                 this.$emit('pokemonBenchChange', this.pokemonBench)

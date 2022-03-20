@@ -26,6 +26,10 @@
 
 <script>
 
+    const HEALTHY = '#53ea8e'
+    const INJURED = '#f0d01d'
+    const CRITICAL = '#F01D1D'
+
     export default {
         name: 'HitPoints',
         components: {},
@@ -37,9 +41,8 @@
         data () {
             return {
                 percentHpRemaining: 100,
-                bgColor: '#53ea8e',
                 healthCss: {
-                    'background-color': this.bgColor,
+                    'background-color': HEALTHY,
                     color: 'transparent',
                     'border-radius': '25px',
                     width: '100%',
@@ -61,14 +64,27 @@
         },
         methods: {
             updateCss (percent) {
-                console.log('PERCENT')
-                console.log(percent)
+
+                let healthBarColor
+
+                if (percent >= 50) {
+                    healthBarColor = HEALTHY
+                } else if (percent >= 20) {
+                    healthBarColor = INJURED
+                } else {
+                    healthBarColor = CRITICAL
+                }
+
                 this.healthCss = {
-                    'background-color': this.bgColor,
+                    'background-color': healthBarColor,
                     color: 'transparent',
                     'border-radius': '25px',
                     width: `${percent}%`,
-                    height: '5px'
+                    height: '5px',
+                    'transition-property': 'width',
+                    'transition-duration': '1s',
+                    'transition-timing-function': 'linear',
+                    'transition-delay': '1s',
                 }
             }
         }

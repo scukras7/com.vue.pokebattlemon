@@ -1,5 +1,14 @@
 {
-    "server": {},
+    "server": {
+        "api": {
+            "root": "/api/v1",
+            "logCreateBattleId": "/log/create/battleid",
+            "logBenches": "/log/save/benches",
+            "logMove": "/log/save/move",
+            "logFaints": "/log/save/faints",
+            "logWinner": "/log/save/winner"
+        }
+    },
     "client": {
         "landing": "/",
         "battleSimulator": "/battle"

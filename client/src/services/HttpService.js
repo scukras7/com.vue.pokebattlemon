@@ -7,15 +7,13 @@ class HttpService {
         this.baseUrlGraphQL = `${process.env.VUE_APP_GRAPHQL_HOST}:${process.env.VUE_APP_GRAPHQL_PORT}/graphql`
     }
 
-    /*
     get (url) {
-        return axios.get(url)
+        return axios.get(this.baseUrlRest + url)
     }
 
     post (url, body) {
-        return axios.post(url, body)
+        return axios.post(this.baseUrlRest + url, body)
     }
-    */
 
     graphql (query, variables) {
         if (variables) {

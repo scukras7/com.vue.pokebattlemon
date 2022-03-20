@@ -18,7 +18,15 @@
                 console.log(`I am the winner: ${player}`)
             }
         },
-        methods: {}
+        methods: {
+            temp () {
+                /*
+                    1. display logs of battle
+                    2. enable log download
+                    3. replay button
+                */
+            }
+        }
     }
 
 </script>
