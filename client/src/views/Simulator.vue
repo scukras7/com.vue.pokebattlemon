@@ -107,6 +107,7 @@
                 bBattleStarted: false,
                 pokemonBaseLevel: 1,
                 battleId: '',
+                turnCount: 0,
                 errorMessage: ''
             }
         },
@@ -195,12 +196,12 @@
                 const playerMoveRes = PlayerService.createMove(this.activePokemonPlayer, move)
                 this.activePokemonPlayer = playerMoveRes.pokemon
 
-                // TODO log pokemon and move in database
+                this.turnCount++
 
                 if (playerMoveRes.bApplyMoveToOpponent) {
                     this.executeMove(playerMoveRes)
                 } else {
-                    LoggerService.log(LOGS.move, playerMoveRes, this.battleId)
+                    LoggerService.log(LOGS.move, playerMoveRes, this.battleId, { turnCount: this.turnCount })
                 }
 
                 this.playerTurn = PLAYERS.opponent
@@ -211,7 +212,7 @@
                     const chosenMoveRes = OpponentService.chooseMove(this.activePokemonOpponent)
                     this.activePokemonOpponent = chosenMoveRes.pokemon
 
-                    // TODO log pokemon and move in database
+                    this.turnCount++
 
                     if (chosenMoveRes.faint) {
                         this.faintPokemon(PLAYERS.opponent)
@@ -225,22 +226,24 @@
             faintPokemon (player) {
                 let bench
 
-                // TODO log fainted pokemon
-
                 if (player === PLAYERS.player) {
                     bench = [...this.pokemonBenchPlayer]
                 } else {
                     bench = [...this.pokemonBenchOpponent]
                 }
 
-                bench.shift()
+                const faintedPokemon = bench.shift()
+
+                LoggerService.log(LOGS.faints, faintedPokemon, this.battleId, { player, turnCount: this.turnCount })
 
                 if (bench.length < 1) {
                     let winningPlayer
-
-                    // TODO log winner
+                    let winningPokemon
 
                     player === PLAYERS.player ? winningPlayer = PLAYERS.opponent : winningPlayer = PLAYERS.player
+                    player === PLAYERS.player ? winningPokemon = this.pokemonBenchOpponent[0].getName() : winningPokemon = this.pokemonBenchPlayer[0].getName()
+
+                    LoggerService.log(LOGS.winner, winningPlayer, this.battleId, { winningPokemon })
                     this.$router.push({ name: 'GameOver', params: { winningPlayer } })
                 } else {
                     if (player === PLAYERS.player) {
@@ -274,7 +277,7 @@
                 if (this.playerTurn === PLAYERS.player) {
 
                     const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonPlayer, this.activePokemonOpponent)
-                    LoggerService.log(LOGS.move, moveRes, this.battleId, attackRes, this.activePokemonOpponent.getName())
+                    LoggerService.log(LOGS.move, moveRes, this.battleId, { attackObj: attackRes, defendingPokemon: this.activePokemonOpponent.getName(), turnCount: this.turnCount })
 
                     if (attackRes.bDamageDealtToDefendingPokemon) {
                         const hp = this.activePokemonOpponent.getHp()
@@ -292,7 +295,7 @@
 
                 } else {
                     const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonOpponent, this.activePokemonPlayer)
-                    LoggerService.log(LOGS.move, moveRes, this.battleId, attackRes, this.activePokemonPlayer.getName())
+                    LoggerService.log(LOGS.move, moveRes, this.battleId, { attackObj: attackRes, defendingPokemon: this.activePokemonPlayer.getName(), turnCount: this.turnCount })
 
                     if (attackRes.bDamageDealtToDefendingPokemon) {
                         const hp = this.activePokemonPlayer.getHp()

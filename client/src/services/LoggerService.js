@@ -1,33 +1,46 @@
 import HttpService from './HttpService'
 import { BenchPokemonReq } from '../classes/BenchPokemonReq'
-import { LOGS } from '../assets/constants'
+import { LOGS, PLAYERS } from '../assets/constants'
 import routes from '../assets/json/routes.json'
 
 export class LoggerService {
 
-    static log (log, logObj, battleId, attackObj, defendingPokemon) {
+    static log (log, logObj, battleId, vars) {
 
         let url
         let body
 
         if (log === LOGS.benches) {
+
             url = routes.server.api.root + routes.server.api.logBenches
             const { playerBench, opponentBench } = this._logBenches(logObj)
             body = { battleId, playerBench, opponentBench, dateCreated: new Date() }
+
         } else if (log === LOGS.faints) {
+
             url = routes.server.api.root + routes.server.api.logFaints
-            this._logFaints(logObj)
+            const { pokemon, pokemonOwner } = this._logFaints(logObj, vars.player)
+            body = { battleId, turnCount: vars.turnCount, pokemon, pokemonOwner, dateCreated: new Date() }
+
         } else if (log === LOGS.move) {
+
             url = routes.server.api.root + routes.server.api.logMove
-            const { attackingPokemon, name, damageAmountDealt } = this._logMove(logObj, attackObj)
-            body = { battleId, attackingPokemon, defendingPokemon, name, damageAmountDealt, dateCreated: new Date() }
+            const { attackingPokemon, name, damageAmountDealt } = this._logMove(logObj, vars.attackObj)
+            body = { battleId, attackingPokemon, defendingPokemon: vars.defendingPokemon, name, damageAmountDealt, dateCreated: new Date(), turnCount: vars.turnCount }
+
         } else if (log === LOGS.winner) {
+
             url = routes.server.api.root + routes.server.api.logWinner
-            this._logWinner(logObj)
+
+            body = {
+                battleId,
+                winningPlayer: logObj === PLAYERS.player ? PLAYERS.player : PLAYERS.cpu,
+                winningPokemon: vars.winningPokemon,
+                dateCreated: new Date()
+            }
+
         }
-        console.log('LOGGER')
-        console.log(url)
-        console.log(body)
+
         HttpService.post(url, body)
     }
 
@@ -88,15 +101,12 @@ export class LoggerService {
         return { playerBench, opponentBench }
     }
 
-    static _logFaints(logObj) {
-        console.log(logObj)
+    static _logFaints(logObj, player) {
+        return { pokemon: logObj.name, pokemonOwner: player === PLAYERS.player ? PLAYERS.player : PLAYERS.cpu }
     }
 
     static _logMove(logObj, attackObj) {
 
-        console.log('_logMove')
-        console.log(logObj)
-        console.log(attackObj)
         const attackingPokemon = logObj.pokemon.getName()
         const name = logObj.move.getName()
 
@@ -108,10 +118,6 @@ export class LoggerService {
 
         return { attackingPokemon, name, damageAmountDealt }
 
-    }
-
-    static _logWinner(logObj) {
-        console.log(logObj)
     }
 
 }
