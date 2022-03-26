@@ -6,7 +6,8 @@
             "logBenches": "/log/save/benches",
             "logMove": "/log/save/move",
             "logFaints": "/log/save/faints",
-            "logWinner": "/log/save/winner"
+            "logWinner": "/log/save/winner",
+            "getLogByBattleId": "/log/retrieve/battle/?battleId="
         }
     },
     "client": {

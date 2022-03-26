@@ -34,6 +34,7 @@ export class LoggerService {
 
             body = {
                 battleId,
+                turnCount: vars.turnCount,
                 winningPlayer: logObj === PLAYERS.player ? PLAYERS.player : PLAYERS.cpu,
                 winningPokemon: vars.winningPokemon,
                 dateCreated: new Date()
