@@ -3,14 +3,16 @@
         <div class="row q-gutter-sm">
             <q-btn-group push>
                 <q-btn
-                    class="playerSelectBtnGroup"
+                    :id="PLAYER_SELECTOR_ID"
+                    :class="`${PLAYER_SELECT_BTN_GROUP_CLASS} ${BTN_GROUP_CLASS}`"
                     color="amber-7"
                     flat
                     label="Player"
                     @click="onClickSelectPlayer(PLAYERS.player)"
                 />
                 <q-btn
-                    class="playerSelectBtnGroup"
+                    :id="OPPONENT_SELECTOR_ID"
+                    :class="PLAYER_SELECT_BTN_GROUP_CLASS"
                     color="amber-7"
                     flat
                     label="Opponent"
@@ -32,6 +34,7 @@
                 />
             </div>
         </div>
+        <div style="margin-top: 20px"/>
         <div id="pokemonSprites" class="col-12">
             <img v-for="sprite, key in pokemonSprites"
                 :src="sprite"
@@ -52,9 +55,13 @@
     import { HpStat } from '../classes/HpStat'
     import { Move } from '../classes/Move'
     import { StatChange } from '../classes/StatChange'
-    import { PLAYERS } from '../assets/constants'
+    import { PLAYERS } from '../constants/players'
 
     const ALLOWED_MOVE_LEARNED_METHOD = 'level-up'
+    const PLAYER_SELECTOR_ID = 'playerSelector'
+    const OPPONENT_SELECTOR_ID = 'opponentSelector'
+    const PLAYER_SELECT_BTN_GROUP_CLASS = 'playerSelectBtnGroup'
+    const BTN_GROUP_CLASS = 'qq-btn'
 
     const STAT = {
         hp: 'hp',
@@ -103,6 +110,10 @@
         created () {
 
             this.PLAYERS = PLAYERS
+            this.PLAYER_SELECTOR_ID = PLAYER_SELECTOR_ID
+            this.OPPONENT_SELECTOR_ID = OPPONENT_SELECTOR_ID
+            this.PLAYER_SELECT_BTN_GROUP_CLASS = PLAYER_SELECT_BTN_GROUP_CLASS
+            this.BTN_GROUP_CLASS = BTN_GROUP_CLASS
 
             this.$emit('selectedPlayer', this.selectedPlayer)
             this.$emit('pokemonBaseLevel', this.pokemonBaseLevel)
@@ -169,8 +180,19 @@
                 }
             },
             onClickSelectPlayer (playerSelection) {
+
                 if (this.selectedPlayer !== playerSelection) {
                     this.selectedPlayer = playerSelection
+
+                    if (playerSelection === PLAYERS.player) {
+                        document.getElementById(PLAYER_SELECTOR_ID).className += ` ${BTN_GROUP_CLASS}`
+                        document.getElementById(OPPONENT_SELECTOR_ID).className = document.getElementById(OPPONENT_SELECTOR_ID).className.replace(` ${BTN_GROUP_CLASS}`, '')
+                    } else {
+
+                        document.getElementById(OPPONENT_SELECTOR_ID).className += ` ${BTN_GROUP_CLASS}`
+                        document.getElementById(PLAYER_SELECTOR_ID).className = document.getElementById(PLAYER_SELECTOR_ID).className.replace(` ${BTN_GROUP_CLASS}`, '')
+                    }
+
                     this.$emit('selectedPlayer', playerSelection)
                 }
             },
@@ -211,13 +233,6 @@
                         statChanges.push(new StatChange(statChangeObj.change, statChangeObj.stat.name))
                     })
 
-                    /*
-                    let statChange = null
-                    if (moveObjs[i].stat_changes.length > 0) {
-                        statChange = new StatChange(moveObjs[i].stat_changes[0].change, moveObjs[i].stat_changes[0].stat.name)
-                    }
-                    */
-
                     moves.push(new Move(
                         moveObjs[i].id,
                         moveObjs[i].name,
@@ -243,6 +258,8 @@
 
     .playerSelectBtnGroup {
         font-size: 0.7em !important;
+        font-weight: 900 !important;
+        font-size: 11px !important;
     }
 
     .sprite {
@@ -251,13 +268,16 @@
     }
 
     .baseLevelSelect {
-        background-color: #394855 !important;
+        background-color: var(--primary-std) !important;
     }
 
     #pokemonSprites {
-        background-color:#afab9f;
+        background-color: var(--secondary-std);
         height: 75vh;
         overflow-y: auto;
+        border-radius: 50px;
+        padding: 10px 20px 10px 20px;
+        box-shadow: var(--box-shadow-std);
     }
 
 </style>

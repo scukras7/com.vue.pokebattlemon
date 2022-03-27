@@ -1,0 +1,1 @@
+export const PLAYERS = { player: 'player', opponent: 'opponent', cpu: 'CPU' }

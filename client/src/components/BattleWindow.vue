@@ -1,6 +1,5 @@
 <template>
-    <div>
-        <div>Battle Window</div>
+    <div class="col-12">
         <div id="battleWindow" class="col-12">
             <div class="row">
                 <div v-if="activePokemonOpponent !== '' && battleStart" class="col-6">
@@ -26,7 +25,7 @@
                 text-color="black"
                 label="Start Battle"
                 :size="'xs'"
-                class="col-6"
+                class="col-6 qq-btn"
                 @click="onClickStartBattle"
             />
         </div>
@@ -36,7 +35,7 @@
 <script>
 
     import HitPoints from './HitPoints'
-    import { PLAYERS } from '../assets/constants'
+    import { PLAYERS } from '../constants/players'
 
     export default {
         name: 'BattleWindow',
@@ -118,8 +117,10 @@
 <style>
 
     #battleWindow {
-        background-color: #afab9f;
-        /*height: 50vh;*/
+        background-color: var(--nintendo-bg);
+        color: var(--nintendo-text);
+        border-radius: 10px;
+        box-shadow: var(--box-shadow-std);
     }
 
     .battleSprite {

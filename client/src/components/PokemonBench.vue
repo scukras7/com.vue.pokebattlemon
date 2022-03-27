@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="user===1" class="row bottomSpacer">
-            <div class="col-6">
+            <div class="col-6 benchTitle">
                 Player Bench:
             </div>
             <q-btn
@@ -10,7 +10,7 @@
                 text-color="black"
                 label="Remove"
                 :size="'xs'"
-                class="col-2 offset-4 self-end"
+                class="col-2 offset-2 self-end qq-btn-sm"
                 @click="onClickRemove"
             />
             <q-btn
@@ -19,12 +19,12 @@
                 text-color="black"
                 label="Remove"
                 :size="'xs'"
-                class="col-2 offset-4 self-end"
+                class="col-2 offset-2 self-end qq-btn-sm"
                 disable
             />
         </div>
         <div v-else class="row bottomSpacer">
-            <div class="col-6">
+            <div class="col-6 benchTitle">
                 Opponent Bench:
             </div>
             <q-btn
@@ -33,7 +33,7 @@
                 text-color="black"
                 label="Remove"
                 :size="'xs'"
-                class="col-2 offset-4 self-end"
+                class="col-2 offset-2 self-end qq-btn-sm"
                 @click="onClickRemove"
             />
             <q-btn
@@ -42,7 +42,7 @@
                 text-color="black"
                 label="Remove"
                 :size="'xs'"
-                class="col-2 offset-4 self-end"
+                class="col-2 offset-2 self-end qq-btn-sm"
                 disable
             />
         </div>
@@ -113,20 +113,26 @@
 <style>
 
     #pokemonBench {
-        background-color: #afab9f;
+        background-color: var(--secondary-std);
         text-align: center;
+        border-radius: 50px;
+        padding: 5px 15px 0px 15px;
+        box-shadow: var(--box-shadow-std);
+        font-weight: 500;
+
+    }
+
+    .benchTitle {
+        font-weight: 500;
+        margin-left: 20px;
     }
 
     .pokemonSprite {
-        width: 3em;
-    }
-
-    .resetBtn {
-        font-size: 0.65em;
+        width: 40px;
     }
 
     .bottomSpacer {
-        margin-bottom: 0.5em;
+        margin-bottom: 10px;
     }
 
 </style>

@@ -1,5 +1,5 @@
 export const EVENTS = {
     move: 'move',
-    faint: 'faint',
+    faints: 'faints',
     winner: 'winner'
 }

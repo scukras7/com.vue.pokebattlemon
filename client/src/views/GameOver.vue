@@ -17,7 +17,7 @@
                             <span v-if="event.event === EVENTS.move" class="eventMove">
                                 {{capitalize(event.event)}}
                             </span>
-                            <span v-if="event.event === EVENTS.faint" class="eventFaint">
+                            <span v-if="event.event === EVENTS.faints" class="eventFaint">
                                 {{capitalize(event.event)}}
                             </span>
                             <span v-if="event.event === EVENTS.winner" class="eventWinner">
@@ -43,7 +43,7 @@
                             {{capitalize(event.attackingPokemon)}} used {{capitalize(event.name)}}
                         </div>
                     </div>
-                    <div v-if="event.event === EVENTS.faint">
+                    <div v-if="event.event === EVENTS.faints">
                         <div class="row">
                             <div class="offset-1">
                                 {{capitalize(event.pokemonOwner)}}'s {{capitalize(event.pokemon)}} fainted
@@ -62,12 +62,22 @@
         </div>
         <div id="divider"/>
         <div class="row justify-center">
-            <div class="col-2 cstmButton" @click="downloadCsv">
-                Download History
-            </div>
-            <div class="col-2 offset-1 cstmButton" @click="restart">
-                Restart
-            </div>
+            <q-btn
+                color="white"
+                text-color="black"
+                label="Download History"
+                :size="'xs'"
+                class="col-2 qq-btn"
+                @click="downloadCsv"
+            />
+            <q-btn
+                color="white"
+                text-color="black"
+                label="Restart"
+                :size="'xs'"
+                class="col-2 offset-1 qq-btn"
+                @click="restart"
+            />
         </div>
     </div>
     <div v-else>
@@ -106,29 +116,39 @@
         created () {
             this.EVENTS = EVENTS
         },
+        watch: {
+            battleId () {
+                this.renderBattleHistory()
+            }
+        },
         mounted() {
-            HttpService.get(`${routes.server.api.root}${routes.server.api.getLogByBattleId}${this.battleId}`)
-                .then((res) => {
-
-                    const tEvents = []
-                    res.data.moves.forEach((move) => tEvents.push(move))
-                    res.data.faints.forEach((faint) => tEvents.push(faint))
-                    tEvents.push(res.data.winner)
-
-                    tEvents.sort((a, b) => {
-                        if (a.dateCreated < b.dateCreated) {
-                            return -1
-                        }
-                        if (a.dateCreated > b.dateCreated) {
-                            return 1
-                        }
-                        return 0
-                    })
-
-                    this.events = [...tEvents]
-                })
+            this.renderBattleHistory()
         },
         methods: {
+            renderBattleHistory () {
+                if (this.battleId) {
+                    HttpService.get(`${routes.server.api.root}${routes.server.api.getLogByBattleId}${this.battleId}`)
+                        .then((res) => {
+
+                            const tEvents = []
+                            res.data.moves.forEach((move) => tEvents.push(move))
+                            res.data.faints.forEach((faint) => tEvents.push(faint))
+                            tEvents.push(res.data.winner)
+
+                            tEvents.sort((a, b) => {
+                                if (a.dateCreated < b.dateCreated) {
+                                    return -1
+                                }
+                                if (a.dateCreated > b.dateCreated) {
+                                    return 1
+                                }
+                                return 0
+                            })
+
+                            this.events = [...tEvents]
+                        })
+                }
+            },
             capitalize (str) {
                 if (str) {
                     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -176,7 +196,7 @@
                             + `${defendingPokemon},`
                             + `${this.events[i].name},`
                             + `${damageAmountDealt}\n`
-                    } else if (this.events[i].event === EVENTS.faint) {
+                    } else if (this.events[i].event === EVENTS.faints) {
                         csvString += `${this.events[i].battleId},`
                             + `${this.events[i].event},`
                             + `${this.events[i].turnCount},`
@@ -243,6 +263,7 @@
     #eventContainer {
         height: 70vh;
         overflow-y: auto;
+        color: var(--nintendo-text);
     }
 
     #divider {
@@ -250,7 +271,7 @@
         margin-bottom: 20px;
         width: 80vw;
         margin-left: 10vw;
-        border-bottom: 0.5px solid #d1d1d1;
+        border-bottom: 0.5px solid var(--nintendo-bg);
     }
 
     #noBattleId {
@@ -258,12 +279,13 @@
     }
 
     .logEvent {
-        border: 1px solid #d1d1d1;
-        background-color: #d1d1d1;
+        border: 1px solid var(--nintendo-bg);
+        background-color: var(--nintendo-bg);
         border-radius: 15px;
         margin-bottom: 10px;
         width: 80vw;
         margin-left: 10vw;
+        box-shadow: var(--box-shadow-std);
     }
 
     .turnCount {
@@ -271,7 +293,7 @@
     }
 
     .eventMove {
-        color: #0f719e;
+        color: var(--primary-std);
         font-weight: 600;
     }
 

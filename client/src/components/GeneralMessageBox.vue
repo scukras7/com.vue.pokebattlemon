@@ -25,7 +25,7 @@
         text-align: center;
         font-style: italic;
         font-weight: 700;
-        color: #ff006a;
+        color: var(--quarternary-std);
     }
 
 </style>

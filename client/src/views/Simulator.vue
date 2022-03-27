@@ -16,13 +16,28 @@
                 />
             </div>
             <div class="col-3">
-                <BattleWindow
-                    :pokemonBenchPlayer="pokemonBenchPlayer"
-                    :pokemonBenchOpponent="pokemonBenchOpponent"
-                    :activePokemonPlayerRemainingHp="activePokemonPlayerRemainingHp"
-                    :activePokemonOpponentRemainingHp="activePokemonOpponentRemainingHp"
-                    @startBattle="onStartBattle"
-                />
+                <div class="row">
+                    <BattleWindow
+                        :pokemonBenchPlayer="pokemonBenchPlayer"
+                        :pokemonBenchOpponent="pokemonBenchOpponent"
+                        :activePokemonPlayerRemainingHp="activePokemonPlayerRemainingHp"
+                        :activePokemonOpponentRemainingHp="activePokemonOpponentRemainingHp"
+                        @startBattle="onStartBattle"
+                    />
+                </div>
+                <div class="row">
+                    <BattleMoves
+                        :battleStart="bBattleStarted"
+                        :playerTurn="playerTurn"
+                        :activePokemonPlayer="activePokemonPlayer"
+                        @playerSelectedMove="onPlayerSelectedMove"
+                        @faintPlayerPokemon="faintPokemon"
+                        @error="onError"
+                    />
+                </div>
+                <div class="row">
+                    <BattleMessages :battleMessageUpdate="battleMessageUpdate" :battleStart="bBattleStarted"/>
+                </div>
             </div>
             <div class="col-3">
                 <div class="col-12">
@@ -48,21 +63,6 @@
                 </div>
             </div>
         </div>
-        <div class="row justify-center">
-            <div class="col-4"/>
-            <div class="col-3">
-                <BattleMoves
-                    :battleStart="bBattleStarted"
-                    :playerTurn="playerTurn"
-                    :activePokemonPlayer="activePokemonPlayer"
-                    @playerSelectedMove="onPlayerSelectedMove"
-                    @faintPlayerPokemon="faintPokemon"
-                    @error="onError"
-                />
-                <!--<BattleMessages/>-->
-            </div>
-            <div class="col-4"/>
-        </div>
     </div>
 </template>
 
@@ -74,11 +74,12 @@
     import BattleWindow from '../components/BattleWindow'
     import PokemonBench from '../components/PokemonBench'
     import BattleMoves from '../components/BattleMoves'
-    // import BattleMessages from '../components/BattleMessages'
+    import BattleMessages from '../components/BattleMessages'
     import { PlayerService } from '../services/PlayerService'
     import { AttackService } from '../services/AttackService'
     import { LoggerService } from '../services/LoggerService'
-    import { PLAYERS, LOGS } from '../assets/constants'
+    import { EVENTS } from '../constants/events'
+    import { PLAYERS } from '../constants/players'
     import HttpService from '../services/HttpService'
     import routes from '../assets/json/routes.json'
 
@@ -90,7 +91,7 @@
             BattleWindow,
             PokemonBench,
             BattleMoves,
-            // BattleMessages
+            BattleMessages
         },
         data () {
             return {
@@ -108,6 +109,7 @@
                 pokemonBaseLevel: 1,
                 battleId: '',
                 turnCount: 0,
+                battleMessageUpdate: {},
                 errorMessage: ''
             }
         },
@@ -149,7 +151,7 @@
                 } else {
                     this.activePokemonOpponent = {}
                     this.activePokemonOpponentRemainingHp = 0
-                    this.pokemonBenchPlayer = []
+                    this.pokemonBenchOpponent = []
                 }
             },
             onPokemonBaseLevel (lvl) {
@@ -182,7 +184,7 @@
                     const battleIdRes = await HttpService.get(routes.server.api.root + routes.server.api.logCreateBattleId)
                     this.battleId = battleIdRes.data.battleId
 
-                    LoggerService.log(LOGS.benches, { playerBench: this.pokemonBenchPlayer, opponentBench: this.pokemonBenchOpponent }, battleIdRes.data.battleId)
+                    LoggerService.log(EVENTS.benches, { playerBench: this.pokemonBenchPlayer, opponentBench: this.pokemonBenchOpponent }, battleIdRes.data.battleId)
 
                     if (playerTurn === PLAYERS.opponent) {
                         this.executeOpponentsTurn()
@@ -201,7 +203,8 @@
                 if (playerMoveRes.bApplyMoveToOpponent) {
                     this.executeMove(playerMoveRes)
                 } else {
-                    LoggerService.log(LOGS.move, playerMoveRes, this.battleId, { turnCount: this.turnCount })
+                    LoggerService.log(EVENTS.move, playerMoveRes, this.battleId, { turnCount: this.turnCount })
+                    this.battleMessageUpdate = { event: EVENTS.move, playerMoveRes }
                 }
 
                 this.playerTurn = PLAYERS.opponent
@@ -236,7 +239,8 @@
 
                 const faintedPokemon = bench.shift()
 
-                LoggerService.log(LOGS.faints, faintedPokemon, this.battleId, { player, turnCount: this.turnCount })
+                LoggerService.log(EVENTS.faints, faintedPokemon, this.battleId, { player, turnCount: this.turnCount })
+                this.battleMessageUpdate = { event: EVENTS.faints, faintedPokemon }
 
                 if (bench.length < 1) {
                     let winningPlayer
@@ -246,7 +250,8 @@
                     player === PLAYERS.player ? winningPokemon = this.pokemonBenchOpponent[0].getName() : winningPokemon = this.pokemonBenchPlayer[0].getName()
                     player === PLAYERS.player ? this.pokemonBenchPlayer = [] : this.pokemonBenchOpponent = []
 
-                    LoggerService.log(LOGS.winner, winningPlayer, this.battleId, { winningPokemon, turnCount: this.turnCount })
+                    LoggerService.log(EVENTS.winner, winningPlayer, this.battleId, { winningPokemon, turnCount: this.turnCount })
+
                     this.$router.push({ name: 'GameOver', params: { winningPlayer, battleId: this.battleId } })
                 } else {
                     if (player === PLAYERS.player) {
@@ -267,7 +272,8 @@
                 if (this.playerTurn === PLAYERS.player) {
 
                     const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonPlayer, this.activePokemonOpponent)
-                    LoggerService.log(LOGS.move, moveRes, this.battleId, { attackObj: attackRes, defendingPokemon: this.activePokemonOpponent.getName(), turnCount: this.turnCount })
+                    LoggerService.log(EVENTS.move, moveRes, this.battleId, { attackObj: attackRes, defendingPokemon: this.activePokemonOpponent.getName(), turnCount: this.turnCount })
+                    this.battleMessageUpdate = { event: EVENTS.move, moveRes, attackObj: attackRes, defendingPokemon: this.activePokemonOpponent.getName() }
 
                     if (attackRes.bDamageDealtToDefendingPokemon) {
                         const hp = this.activePokemonOpponent.getHp()
@@ -284,9 +290,9 @@
                     }
 
                 } else {
-                    console.log('executing opponent move')
                     const attackRes = await AttackService.applyAttack(moveRes.move, this.activePokemonOpponent, this.activePokemonPlayer)
-                    LoggerService.log(LOGS.move, moveRes, this.battleId, { attackObj: attackRes, defendingPokemon: this.activePokemonPlayer.getName(), turnCount: this.turnCount })
+                    LoggerService.log(EVENTS.move, moveRes, this.battleId, { attackObj: attackRes, defendingPokemon: this.activePokemonPlayer.getName(), turnCount: this.turnCount })
+                    this.battleMessageUpdate = { event: EVENTS.move, moveRes, attackObj: attackRes, defendingPokemon: this.activePokemonPlayer.getName() }
 
                     if (attackRes.bDamageDealtToDefendingPokemon) {
                         const hp = this.activePokemonPlayer.getHp()

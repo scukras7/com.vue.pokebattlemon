@@ -1,7 +1,42 @@
+[color-mode="standard"] {
+    --primary-std: #2a84d1;
+    --secondary-std: #3d97e4;
+    --tertiary-std: #00d8de;
+    --quarternary-std: #75fac7;
+    --primary-text: #ffb300;
+    --nintendo-bg: #cccccc;
+    --nintendo-text: #353535;
+    --box-shadow-std: 2px 2px 5px #000;
+}
+
 body {
-    background-color: #394855;
+    background-color: var(--primary-std);
+    color: var(--primary-text);
+    font-weight: 400;
 }
 
 .textAlignCenter {
     text-align: center;
+}
+
+.q-field__native {
+    color: var(--primary-text);
+}
+
+.q-btn {
+    background-color: var(--secondary-std);
+}
+
+.qq-btn {
+    background-color: var(--primary-text) !important;
+    color: var(--primary-std) !important;
+    font-weight: 900;
+    font-size: 11px !important;
+}
+
+.qq-btn-sm {
+    background-color: var(--primary-text) !important;
+    color: var(--primary-std) !important;
+    font-weight: 900;
+    font-size: 10px !important; 
 }

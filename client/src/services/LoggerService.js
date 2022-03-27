@@ -1,6 +1,7 @@
 import HttpService from './HttpService'
 import { BenchPokemonReq } from '../classes/BenchPokemonReq'
-import { LOGS, PLAYERS } from '../assets/constants'
+import { EVENTS } from '../constants/events'
+import { PLAYERS } from '../constants/players'
 import routes from '../assets/json/routes.json'
 
 export class LoggerService {
@@ -10,25 +11,25 @@ export class LoggerService {
         let url
         let body
 
-        if (log === LOGS.benches) {
+        if (log === EVENTS.benches) {
 
             url = routes.server.api.root + routes.server.api.logBenches
             const { playerBench, opponentBench } = this._logBenches(logObj)
             body = { battleId, playerBench, opponentBench, dateCreated: new Date() }
 
-        } else if (log === LOGS.faints) {
+        } else if (log === EVENTS.faints) {
 
             url = routes.server.api.root + routes.server.api.logFaints
             const { pokemon, pokemonOwner } = this._logFaints(logObj, vars.player)
             body = { battleId, turnCount: vars.turnCount, pokemon, pokemonOwner, dateCreated: new Date() }
 
-        } else if (log === LOGS.move) {
+        } else if (log === EVENTS.move) {
 
             url = routes.server.api.root + routes.server.api.logMove
             const { attackingPokemon, name, damageAmountDealt } = this._logMove(logObj, vars.attackObj)
             body = { battleId, attackingPokemon, defendingPokemon: vars.defendingPokemon, name, damageAmountDealt, dateCreated: new Date(), turnCount: vars.turnCount }
 
-        } else if (log === LOGS.winner) {
+        } else if (log === EVENTS.winner) {
 
             url = routes.server.api.root + routes.server.api.logWinner
 

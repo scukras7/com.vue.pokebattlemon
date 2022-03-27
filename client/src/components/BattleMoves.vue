@@ -1,5 +1,5 @@
 <template>
-    <div v-if="battleStart">
+    <div v-if="battleStart" class="col-12">
         <div v-if="activePokemonMovesPlayer.length > 0" id="movesContainer">
             <div class="row justify-center">
                 <div v-for="move, key in activePokemonMovesPlayer" class="col-6 moveSelection" :key="key">
@@ -13,7 +13,7 @@
 
 <script>
 
-    import { PLAYERS } from '../assets/constants'
+    import { PLAYERS } from '../constants/players'
 
     const MOVES_OBJECT_COMPARISON = 'moves'
 
@@ -112,7 +112,10 @@
     }
 
     #movesContainer {
-        background-color: #afab9f;
+        background-color: var(--nintendo-bg);
+        color: var(--nintendo-text);
+        border-radius: 10px;
+        box-shadow: var(--box-shadow-std);
     }
 
 </style>

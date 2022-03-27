@@ -26,9 +26,9 @@
 
 <script>
 
-    const HEALTHY = '#53ea8e'
-    const INJURED = '#f0d01d'
-    const CRITICAL = '#F01D1D'
+    const HEALTHY = '#3cc873'
+    const INJURED = '#ddd11c'
+    const CRITICAL = '#e83939'
 
     export default {
         name: 'HitPoints',
@@ -104,10 +104,6 @@
         padding-top: 0.75em;
         padding-left: 0.75em;
         padding-right: 0.2em;
-        /*
-        color: #f2be1f;
-        background-color: #f21f50;
-        */
     }
 
 </style>
