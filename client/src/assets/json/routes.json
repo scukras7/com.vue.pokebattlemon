@@ -1,13 +1,18 @@
 {
     "server": {
         "api": {
-            "root": "/api/v1",
+            "root": "/pokebattlemon/api/v1",
             "logCreateBattleId": "/log/create/battleid",
             "logBenches": "/log/save/benches",
             "logMove": "/log/save/move",
             "logFaints": "/log/save/faints",
             "logWinner": "/log/save/winner",
             "getLogByBattleId": "/log/retrieve/battle/?battleId="
+        },
+        "fileserver": {
+            "root": "/pokebattlemon/fileserver/api/v1",
+            "connect": "/connected",
+            "resourcesLanding": "/resources/landing"
         }
     },
     "client": {

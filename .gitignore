@@ -2,7 +2,6 @@
 client/node_modules
 client/dist
 
-
 # local env files
 client/.env*
 
@@ -12,6 +11,9 @@ client/yarn-debug.log*
 client/yarn-error.log*
 client/pnpm-debug.log*
 
+# graphics
+templates/animations/*_AME/
+
 # Editor directories and files
 .idea
 .vscode
@@ -20,3 +22,5 @@ client/pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+
