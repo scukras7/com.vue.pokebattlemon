@@ -43,7 +43,7 @@
         components: {},
         data () {
             return {
-                isMobile: true,
+                isMobile: null,
                 loadVideo: false,
                 videoSourceUrl: '',
                 renderedSvg: BlankMobileSVG

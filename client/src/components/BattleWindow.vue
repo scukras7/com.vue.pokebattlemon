@@ -29,6 +29,17 @@
                 @click="onClickStartBattle"
             />
         </div>
+        <div v-if="loading" class="row justify-center">
+            <img :src="PokeballSVG" className="loadingPokeball" alt="loading-pokeball"/>
+        </div>
+        <div v-if="!battleStart && !loading" id="instructionsContainer" class="row justify-center">
+            <ol>
+                <li>Select pokémon Base Level</li>
+                <li>Select pokémon for Player and Opponent</li>
+                <li>Press 'Start Battle'</li>
+                <li>Battle!</li>
+            </ol>
+        </div>
     </div>
 </template>
 
@@ -36,6 +47,7 @@
 
     import HitPoints from './HitPoints'
     import { PLAYERS } from '../constants/players'
+    import PokeballSVG from '../assets/svg/pokeball.svg'
 
     export default {
         name: 'BattleWindow',
@@ -44,7 +56,8 @@
             pokemonBenchPlayer: Array,
             pokemonBenchOpponent: Array,
             activePokemonPlayerRemainingHp: Number,
-            activePokemonOpponentRemainingHp: Number
+            activePokemonOpponentRemainingHp: Number,
+            loading: Boolean
         },
         data () {
             return {
@@ -58,6 +71,9 @@
                 pokemonHpOpponent: 0,
                 battleStart: false
             }
+        },
+        created () {
+            this.PokeballSVG = PokeballSVG
         },
         watch: {
             pokemonBenchPlayer (bench) {
@@ -121,6 +137,11 @@
         color: var(--nintendo-text);
         border-radius: 10px;
         box-shadow: var(--box-shadow-std);
+    }
+
+    #instructionsContainer {
+        margin-top: 25vh;
+        font-weight: 500;
     }
 
     .battleSprite {

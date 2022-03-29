@@ -1,5 +1,16 @@
 <template>
     <div>
+        <div class="row">
+            <q-btn
+                color="white"
+                text-color="black"
+                label="Reset"
+                :size="'xs'"
+                class="col-2 qq-btn-sm"
+                @click="reset"
+            />
+        </div>
+        <p/>
         <div class="row q-gutter-sm">
             <q-btn-group push>
                 <q-btn
@@ -35,7 +46,7 @@
             </div>
         </div>
         <div style="margin-top: 20px"/>
-        <div id="pokemonSprites" class="col-12">
+        <div v-if="!loading" id="pokemonSprites" class="col-12">
             <img v-for="sprite, key in pokemonSprites"
                 :src="sprite"
                 :key="key"
@@ -75,7 +86,7 @@
     export default {
         name: 'PokemonSelector',
         components: {},
-        emit: ['nextSelectedPokemon', 'selectedPlayer', 'pokemonBaseLevel'],
+        emit: ['nextSelectedPokemon', 'selectedPlayer', 'pokemonBaseLevel', 'loadingPokemon'],
         props: {
             battleStarted: Boolean,
             pokemonBenchPlayer: Array,
@@ -89,7 +100,8 @@
                 pokemonSprites: [],
                 pokemonBaseLevel: 10,
                 pokemonBaseLevelOptions: [],
-                disableBaseLevelSelector: false
+                disableBaseLevelSelector: false,
+                loading: true
             }
         },
         watch: {
@@ -125,6 +137,8 @@
                         this.pokemonSprites.push(pokemon.sprites.front_default)
                     })
                     this.allPokemonAndStats = [...res.data.data.pokemon]
+                    this.loading = false
+                    this.$emit('loadingPokemon', false)
                 })
 
             this.populatePokemonLevel()
@@ -247,7 +261,9 @@
                 }
 
                 return moves
-
+            },
+            reset () {
+                window.location.reload()
             }
         }
     }

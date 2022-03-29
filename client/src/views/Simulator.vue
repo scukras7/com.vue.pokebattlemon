@@ -1,9 +1,6 @@
 <template>
     <div>
         <GeneralMessageBox :message="errorMessage"/>
-        <div>
-            Reset Button
-        </div>
         <div class="row justify-around q-gutter-sm">
             <div class="col-3">
                 <PokemonSelector
@@ -13,6 +10,7 @@
                     @nextSelectedPokemon="onNextSelectedPokemon"
                     @selectedPlayer="onSelectedPlayer"
                     @pokemonBaseLevel="onPokemonBaseLevel"
+                    @loadingPokemon="onLoading"
                 />
             </div>
             <div class="col-3">
@@ -22,6 +20,7 @@
                         :pokemonBenchOpponent="pokemonBenchOpponent"
                         :activePokemonPlayerRemainingHp="activePokemonPlayerRemainingHp"
                         :activePokemonOpponentRemainingHp="activePokemonOpponentRemainingHp"
+                        :loading="loading"
                         @startBattle="onStartBattle"
                     />
                 </div>
@@ -95,6 +94,7 @@
         },
         data () {
             return {
+                loading: true,
                 selectedPlayer: '',
                 playerTurn: '',
                 nextPlayerPokemon: {},
@@ -309,6 +309,9 @@
                     }
                 }
 
+            },
+            onLoading (val) {
+                this.loading = val
             }
         }
     }
