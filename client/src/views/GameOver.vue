@@ -8,7 +8,10 @@
             {{capitalize(winningPlayer)}} won!
         </div>
         <p/>
-        <div id="eventContainer">
+        <div v-if="loading" class="row justify-center">
+            <img :src="PokeballSVG" className="loadingPokeball" alt="loading-pokeball"/>
+        </div>
+        <div v-else id="eventContainer">
             <div v-for="event, i of events" :key="i">
                 <div class="logEvent">
                     <div class= "row justify-center">
@@ -98,6 +101,7 @@
 
     import HttpService from '../services/HttpService'
     import routes from '../assets/json/routes.json'
+    import PokeballSVG from '../assets/svg/pokeball.svg'
     import { EVENTS } from '../constants/events.js'
 
     export default {
@@ -110,11 +114,13 @@
         },
         data () {
             return {
-                events: []
+                events: [],
+                loading: true
             }
         },
         created () {
             this.EVENTS = EVENTS
+            this.PokeballSVG = PokeballSVG
         },
         watch: {
             battleId () {
@@ -127,27 +133,30 @@
         methods: {
             renderBattleHistory () {
                 if (this.battleId) {
-                    const url = `${routes.server.api.root}${routes.server.api.getLogByBattleId}${this.battleId}`
-                    HttpService.get(url)
-                        .then((res) => {
+                    const TIMEOUT = 3000
+                    setTimeout(() => {
+                        HttpService.get(routes.server.api.root + routes.server.api.getLogByBattleId + this.battleId)
+                            .then((res) => {
 
-                            const tEvents = []
-                            res.data.moves.forEach((move) => tEvents.push(move))
-                            res.data.faints.forEach((faint) => tEvents.push(faint))
-                            tEvents.push(res.data.winner)
+                                const tEvents = []
+                                res.data.moves.forEach((move) => tEvents.push(move))
+                                res.data.faints.forEach((faint) => tEvents.push(faint))
+                                tEvents.push(res.data.winner)
 
-                            tEvents.sort((a, b) => {
-                                if (a.dateCreated < b.dateCreated) {
-                                    return -1
-                                }
-                                if (a.dateCreated > b.dateCreated) {
-                                    return 1
-                                }
-                                return 0
+                                tEvents.sort((a, b) => {
+                                    if (a.dateCreated < b.dateCreated) {
+                                        return -1
+                                    }
+                                    if (a.dateCreated > b.dateCreated) {
+                                        return 1
+                                    }
+                                    return 0
+                                })
+
+                                this.events = [...tEvents]
+                                this.loading = false
                             })
-
-                            this.events = [...tEvents]
-                        })
+                    }, TIMEOUT)
                 }
             },
             capitalize (str) {
