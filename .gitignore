@@ -12,6 +12,8 @@ client/yarn-error.log*
 client/pnpm-debug.log*
 
 # server
+server/node_modules/
+server/dist/
 server/.env*
 
 # graphics

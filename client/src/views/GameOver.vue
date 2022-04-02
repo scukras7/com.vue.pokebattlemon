@@ -127,7 +127,8 @@
         methods: {
             renderBattleHistory () {
                 if (this.battleId) {
-                    HttpService.get(`${routes.server.api.root}${routes.server.api.getLogByBattleId}${this.battleId}`)
+                    const url = `${routes.server.api.root}${routes.server.api.getLogByBattleId}${this.battleId}`
+                    HttpService.get(url)
                         .then((res) => {
 
                             const tEvents = []
