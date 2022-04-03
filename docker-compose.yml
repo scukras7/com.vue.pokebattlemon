@@ -1,0 +1,69 @@
+version: "3"
+services:
+  pbm_vue:
+    build: .
+    image: pbm_vue:0.5
+    container_name: pbm_vue
+    restart: always
+    depends_on:
+      - pbm_graphql
+      - pbm_microapi
+      - pbm_fileserver
+    ports:
+      - "7770:7770"
+    volumes:
+      - "/PATH/TO/com.vue.pokebattlemon/server/.env.prod:/opt/server/.env.prod:ro"
+    networks:
+      - pbm_network
+
+  pbm_graphql:
+    build: /PATH/TO/com.graphql.pokebattlemon
+    image: pbm_graphql:0.5
+    container_name: pbm_graphql
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - "7771:7771"
+    volumes:
+      - "/PATH/TO/com.graphql.pokebattlemon/server/.env.prod:/opt/server/.env.prod"
+    networks:
+      - pbm_network
+  
+  pbm_microapi:
+    build: /PATH/TO/com.java.api.pokebattlemon
+    image: pbm_microapi:0.5
+    container_name: pbm_microapi
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - "7772:7772"
+    networks:
+      - pbm_network
+
+  pbm_fileserver:
+    build: /PATH/TO/com.node.pokebattlemon.fileserver
+    image: pbm_fileserver:0.5
+    container_name: pbm_fileserver
+    restart: always
+    ports:
+      - "7773:7773"
+    networks:
+      - pbm_network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - /PATH/TO/mongo:/data/db
+    networks:
+      - pbm_network
+    command: --auth
+
+networks:
+  pbm_network:
+    name: pbm_network
