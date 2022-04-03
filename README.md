@@ -4,6 +4,7 @@ Vue application that provides a Pokemon battle simulator from Pokemon version Bl
 ### Contents
 1. [Requirements](#requirements)
 1. [Introdution](#introduction)
+1. [Clone Git Repositories](#clone-git-repositories)
 1. [Application Environment Variables](#application-environment-variables)
 1. [Application Setup](#application-setup)
 
@@ -17,6 +18,15 @@ Vue application that provides a Pokemon battle simulator from Pokemon version Bl
 
 ### Introduction
 This application was started as a demo application combining various technologies, Vue.js, Nodejs, Java (Micronaut), Python, MongoDB and Docker, for my resume and as a fun project to work on.  When thinking of an idea of an application to build to demo my know-how, I decided to create a pokemon related app as I've always been a fan of it and have great memories of playing Pokemon Blue and Yellow a lot on my Gameboy Color as kid.  Not only did I learn more about each of the technologies, I also learned about the mechanics behind the Gen. 1 Pokemon games.  In many ways, to get this application off the ground and to a running state I have simplified the game's mechanics in this app or omitted some features from the Gen. 1 games.  However, this provides a nice area of opportunity to continue building and working on feature releases in the future.
+
+### Clone Git Repositories
+```sh
+git clone https://github.com/scukras7/com.vue.pokebattlemon.git
+git clone https://github.com/scukras7/com.graphql.pokebattlemon.git
+git clone https://github.com/scukras7/com.java.api.pokebattlemon.git
+git clone https://github.com/scukras7/come.node.pokebattlemon.fileserver.git
+git clone https://github.com/scukras7/com.python.pokebattle.etl.git
+```
 
 ### Application Environment Variables
 Each service in docker-compose has its own environment variables that need set for your deployment.  Please follow the following instructions to create the necessary files
@@ -118,14 +128,9 @@ RESOURCE_DIR=/resources/mp4
 
 ### Application Setup
 To setup the project and deploy it locally follow these steps:
-#### Clone Git repositories
-```sh
-git clone https://github.com/scukras7/com.vue.pokebattlemon.git
-git clone https://github.com/scukras7/com.graphql.pokebattlemon.git
-git clone https://github.com/scukras7/com.java.api.pokebattlemon.git
-git clone https://github.com/scukras7/come.node.pokebattlemon.fileserver.git
-git clone https://github.com/scukras7/com.python.pokebattle.etl.git
-```
+
+First setup the MongoDB instance and populate the initial dataset
+
 #### Setup MongoDB and Application Startup
 First run the following commands to create users on the **pokedex** and **pokebattlemon** databases
 ```sh
