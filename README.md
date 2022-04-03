@@ -149,7 +149,7 @@ mongo:
     ports:
       - "27017:27017"
     volumes:
-      - /Users/scott/Desktop/mongo:/data/db
+      - /PATH/TO/mongo:/data/db
     networks:
       - pbm_network
     #command: --auth
