@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 1369 889" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-    <g transform="matrix(0.64,0,0,0.64,-19.748,-66.7016)">
+<svg width="100%" height="100%" viewBox="0 0 1408 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(0.64,0,0,0.64,0,0)">
+        <g id="Layer1">
+            <rect x="0" y="0" width="2200" height="1600" style="fill:white;"/>
+        </g>
         <g id="GraphQL_Logo.svg" transform="matrix(0.101231,0,0,0.101231,1556.62,491.582)">
             <use xlink:href="#_Image1" x="0" y="0" width="1024px" height="1024px" transform="matrix(15.5152,0,0,15.5152,0,0)"/>
         </g>
