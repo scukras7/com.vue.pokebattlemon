@@ -66,4 +66,3 @@ services:
 
 networks:
   pbm_network:
-    name: pbm_network

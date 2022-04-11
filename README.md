@@ -7,6 +7,10 @@ Vue application that provides a Pokemon battle simulator from Pokemon version Bl
 1. [Clone Git Repositories](#clone-git-repositories)
 1. [Application Environment Variables](#application-environment-variables)
 1. [Application Setup](#application-setup)
+1. [Load Pokemon API Data into MongoDB](#load-pokemon-api-data-into-mongodb)
+1. [Application Architecture](#application-architecture)
+1. [Notes](#notes)
+1. [References](#references)
 
 ### Requirements
 1. Vue.js v3
@@ -134,13 +138,14 @@ First setup the MongoDB instance and populate the initial dataset
 #### Setup MongoDB and Application Startup
 First run the following commands to create users on the **pokedex** and **pokebattlemon** databases
 ```sh
+cd com.vue.pokebattlemon
 docker-compose up -d mongo
 docker exec -it mongo bash
 mongo
 use pokedex
-db.createUser({ user: 'USER', roles: 'readWrite', pwd: passwordPrompt() })
+db.createUser({ user: 'USER', roles: ['readWrite'], pwd: passwordPrompt() })
 use pokebattlemon
-db.createUser({ user: 'USER', roles: 'readWrite', pwd: passwordPrompt() })
+db.createUser({ user: 'USER', roles: ['readWrite'], pwd: passwordPrompt() })
 exit
 exit
 docker-compose down mongo
@@ -154,6 +159,7 @@ mongo:
     ports:
       - "27017:27017"
     volumes:
+        # this directory is used to persist Docker MongoDB data on the harddrive
       - /PATH/TO/mongo:/data/db
     networks:
       - pbm_network
@@ -163,3 +169,36 @@ Now start all Docker services
 ```sh
 docker-compose up -d
 ```
+
+### Load Pokemon API Data into MongoDB
+1. Reference the README.md in com.python.pokebattlemon.etl
+
+### Application Architecture
+![Pokebattlemon Architecture SVG](./templates/svg/pokebattlemonArchitecture.svg)
+
+#### Architecture Overview
+1. Pokebattlemon is built on various microservices, each controlling various parts of the application
+    - Python ETL
+    - MongoDB
+    - GraphQL/Express API Server
+    - Node/Express VueJS and Static File Server
+    - Java/Micronaut Logger API
+1. Data is queried by a Python ETL script from PokeAPI, a public API resource for Pokemon data for all game versions
+    - The python script is only needed once to load desired data into MongoDB.  This was done to ease the burden on PokeAPI's servers for subsequent data requests run through Pokebattlemon
+1. A GraphQL/Express server sits on top of MongoDB and serves data requests for Pokemon data such as Stats, Names, Moves and other needed data to run the game engine
+1. A NodeJS server is used to serve the VueJS static build files as well as the Pokebattlemon splash screens
+1. A Java API using the Micronaut framework acts as a data logger for user and CPU interactions during each battle and is also used to serve the logs for download at the end of each battle
+1. Docker is used to ease the burden of deployment on AWS and to create the required environments for each microservice
+1. Application is hosted on an AWS EC2 instance
+
+### Notes
+1. Application currently supports a simplified game engine based on the Pokemon Red, Blue and Yellow versions
+1. Currently does not support status changes to pokemon due to Paralysis, Sleep, Confusion, etc
+1. The damage calculation is based on Pokemon growth and experience during normal gameplay of Pokemon Red, Blue and Yellow.  As such some assumptions were made and/or randomization was used to generate stat scores.
+1. The application currently does not support mobile, but will be addressed in future releases
+
+### References
+1. [PokeAPI](https://pokeapi.co)
+    - Provided pokemon stats, sprites and other metadata to create the game
+2. [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_Wiki)
+    - Provided information on game engine for Pokemon game versions (ex: damage calculation)
